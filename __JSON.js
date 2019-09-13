@@ -1,7 +1,7 @@
 /**
-* @class JSON
-* @classdesc Class with functions Helping working with reportal objects like JSON objects
-*/
+ * @class JSON
+ * @classdesc Class with functions Helping working with reportal objects like JSON objects
+ */
 class JSON
 {
     /**
@@ -13,27 +13,27 @@ class JSON
      */
     static function stringify(obj) {
 
-        var t = typeof (obj);
-        if (t != "object" || obj === null) {
-            // simple data type
-            if (t == "string") obj = '"'+ _escapeEntities(obj) +'"';
-            else if(t=="number") obj = '"'+obj+'"';
-            return String(obj);
-        }
-        else {
-            // recurse array or object
-            var n, v, json = [], arr = (obj && obj.constructor == Array);
-            for (n in obj) {
-                v = obj[n]; t = typeof(v);
-                if (t == "string"){
-                    v = '"'+ _escapeEntities(v) +'"';
-                }
-                else if (t == "object" && v !== null) v = stringify(v);
-                json.push((arr ? "" : '"' + n + '":') + String(v));
+    var t = typeof (obj);
+    if (t != "object" || obj === null) {
+        // simple data type
+        if (t == "string") obj = '"'+ _escapeEntities(obj) +'"';
+        else if(t=="number") obj = '"'+obj+'"';
+        return String(obj);
+    }
+    else {
+        // recurse array or object
+        var n, v, json = [], arr = (obj && obj.constructor == Array);
+        for (n in obj) {
+            v = obj[n]; t = typeof(v);
+            if (t == "string"){
+                v = '"'+ _escapeEntities(v) +'"';
             }
-            return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+            else if (t == "object" && v !== null) v = stringify(v);
+            json.push((arr ? "" : '"' + n + '":') + String(v));
         }
-    };
+        return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+    }
+};
 
     /**
      * @memberof JSON
@@ -44,17 +44,17 @@ class JSON
      * @returns {String}
      */
     private static function _escapeEntities(str) {
-        var entitiesMap = {
-            '<': '&lt;',
-            '>': '&gt;',
-            '&': '&amp;',
-            '\"': '\\&quot;'/*,
+    var entitiesMap = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        '\"': '\\&quot;'/*,
             '\'':'&amp;apos;'*/ //https://jiraosl.firmglobal.com/browse/TQA-4215
-        };
-        return str.replace(/[&<>\"]/g, function(key) { // old expre /[&<>\"\']/g, https://jiraosl.firmglobal.com/browse/TQA-4215
-            return entitiesMap[key];
-        });
-    }
+    };
+    return str.replace(/[&<>\"]/g, function(key) { // old expre /[&<>\"\']/g, https://jiraosl.firmglobal.com/browse/TQA-4215
+        return entitiesMap[key];
+    });
+}
 
     /**
      * @memberof JSON
@@ -65,7 +65,7 @@ class JSON
      * @returns {String}
      */
     static function print(config, configName){ // JSON.print prints JSON `config` to page as JavaScript variable with a specified `configName`
-        var varName = configName || 'config';
-        return '<script type="text/javascript">var '+ varName + '=' + stringify(config) +'</script>';
-    }
+    var varName = configName || 'config';
+    return '<script type="text/javascript">var '+ varName + '=' + stringify(config) +'</script>';
+}
 }
