@@ -109,19 +109,29 @@ class PageCategorical {
             table.RowHeaders.Add(row);
         }
 
-        // add 2 Base columns
+        if (table.ColumnHeaders.Count == 0) { // temporary solution to avoid multiple addition of columns for Excel Categorical table
 
-        var baseVP: HeaderBase = new HeaderBase();
-        baseVP.Distributions.Enabled = true;
-        baseVP.Distributions.VerticalPercents = true;
-        baseVP.Distributions.UseInnermostTotals = true;
-        table.ColumnHeaders.Add(baseVP);
+            // add 2 Base columns and 2 Segments to change the standard Base titles for Excel Export
 
-        var baseC: HeaderBase = new HeaderBase();
-        baseC.Distributions.Enabled = true;
-        baseC.Distributions.Count = true;
-        table.ColumnHeaders.Add(baseC);
+            var baseVP: HeaderBase = new HeaderBase();
+            baseVP.Distributions.Enabled = true;
+            baseVP.Distributions.VerticalPercents = true;
+            baseVP.Distributions.UseInnermostTotals = true;
+            baseVP.HideHeader = true;
+            var hsVP: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'Frequence'), '');
+            hsVP.DataSourceNodeId = DataSourceUtil.getDsId(context);
+            hsVP.SubHeaders.Add(baseVP);
+            table.ColumnHeaders.Add(hsVP);
 
+            var baseC: HeaderBase = new HeaderBase();
+            baseC.Distributions.Enabled = true;
+            baseC.Distributions.Count = true;
+            baseC.HideHeader = true;
+            var hsC: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'Number'), '');
+            hsC.DataSourceNodeId = DataSourceUtil.getDsId(context);
+            hsC.SubHeaders.Add(baseC);
+            table.ColumnHeaders.Add(hsC);
+        }
 
         // global table settings
 
@@ -204,11 +214,11 @@ class PageCategorical {
                 if (answerBase > 0) {  //display only answers with responses
                     var answerName = report.TableUtils.GetRowHeaderCategoryTitles(tableName)[row_index + j][0];
                     var answerPercent = (100 * report.TableUtils.GetCellValue(tableName, row_index + j + 1, 1).Value);
-                    result.push({name: answerName, base: answerBase, y: answerPercent});
+                    result.push({ name: answerName, base: answerBase, y: answerPercent });
 
                 }
             }
-            categoricals.push({qid: Qs[i], title: title, type: displayType, result: result, order: i});
+            categoricals.push({ qid: Qs[i], title: title, type: displayType, result: result, order: i });
             row_index += displayNumberOfAnswers;
 
         }
@@ -311,7 +321,7 @@ class PageCategorical {
 
             var content = {
                 header: '<span class="card__title">' + TextAndParameterUtil.getTextTranslationByKey(context, 'Page_Categorical_TopAnswers') + '</span>' +
-                    '<h2 class="card__subtitle">' + item.title + '</h2>',
+                '<h2 class="card__subtitle">' + item.title + '</h2>',
                 data: '',
                 footer: item.result.length != 0 ? '<div id="categorical-button-' + dsId + ':' + item.qid + '" class="rpt-button redesigned-button">' + (!isThisCardDrilldowned ? TextAndParameterUtil.getTextTranslationByKey(context, 'ShowMore') : TextAndParameterUtil.getTextTranslationByKey(context, 'ShowLess')) + '</div>' : ''
             };
@@ -355,7 +365,8 @@ class PageCategorical {
     static function tableDrilldown_Hide(context) {
         var state = context.state;
         var isDrilldowned = state.Parameters.IsNull('p_Drilldown') || !state.Parameters.GetString('p_Drilldown');
-        return isDrilldowned || SuppressUtil.isGloballyHidden(context);
+        var isExcel = state.ReportExecutionMode == ReportExecutionMode.ExcelExport;
+        return isExcel || isDrilldowned || SuppressUtil.isGloballyHidden(context);
     }
 
 
@@ -366,7 +377,7 @@ class PageCategorical {
      * @param {Object} context - {table: table, report: report, user: user, state: state, confirmit: confirmit, log: log, suppressSettings: suppressSettings}
      */
 
-    static function tableDrilldown_Render(context){
+    static function tableDrilldown_Render(context) {
 
         var report = context.report;
         var state = context.state;
@@ -378,10 +389,10 @@ class PageCategorical {
 
         // add row  = header question
         var drillDownQId = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown') ? state.Parameters.GetString('p_Drilldown').split(":")[1] : '';
-        var qe : QuestionnaireElement =  QuestionUtil.getQuestionnaireElement(context, drillDownQId);
-        var project : Project = DataSourceUtil.getProject(context);
-        var question : Question = project.GetQuestion(drillDownQId);
-        var row : HeaderQuestion = new HeaderQuestion(qe);
+        var qe: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, drillDownQId);
+        var project: Project = DataSourceUtil.getProject(context);
+        var question: Question = project.GetQuestion(drillDownQId);
+        var row: HeaderQuestion = new HeaderQuestion(qe);
         TableUtil.maskOutNA(context, row);
         row.IsCollapsed = (question.QuestionType === QuestionType.Single) ? false : true;
         row.ShowTitle = false;
@@ -397,11 +408,11 @@ class PageCategorical {
         var barChartColors = Config.barChartColors_Categorical;
         var barChart: HeaderChartCombo = new HeaderChartCombo();
         var chartValue: ChartComboValue = new ChartComboValue();
-        chartValue.Expression = 'cellv(col+1, row)';
+        chartValue.Expression = 'if(cellv(col+1, row) > 0, cellv(col+1, row), emptyv())';
         chartValue.BaseColor = new ChartComboColorSet([barChartColors[0].color]);
         chartValue.CssClass = 'barchart__bar barchart__bar_type_distribution';
         var chartEmptyPart: ChartComboValue = new ChartComboValue();
-        chartEmptyPart.Expression = 'if(max(colv(1, rows, c, col+1)) - cellv(col+1, row) > 0, max(colv(1, rows, c, col+1)) - cellv(col+1, row), 0)';
+        chartEmptyPart.Expression = 'if(cellv(col+1, row) > 0 && (max(colv(1, rows, c, col+1)) - cellv(col+1, row)) > 0, max(colv(1, rows, c, col+1)) - cellv(col+1, row), emptyv())';
         chartEmptyPart.BaseColor = new ChartComboColorSet([barChartColors[1].color]);
         chartEmptyPart.CssClass = 'barchart__bar barchart__bar_type_distribution';
         barChart.Values = [chartValue, chartEmptyPart];
@@ -409,31 +420,31 @@ class PageCategorical {
         barChart.Title = TextAndParameterUtil.getLabelByKey(context, 'Distribution');
         table.ColumnHeaders.Add(barChart);
 
-        var hbCount : HeaderBase = new HeaderBase();
+        var hbCount: HeaderBase = new HeaderBase();
         hbCount.Distributions.Enabled = true;
         hbCount.Distributions.Count = true;
         hbCount.Distributions.UseInnermostTotals = true;
         hbCount.HideHeader = true;
 
-        var hbVP : HeaderBase = new HeaderBase();
+        var hbVP: HeaderBase = new HeaderBase();
         hbVP.Distributions.Enabled = true;
         hbVP.Distributions.VerticalPercents = true;
         hbVP.Decimals = Config.Decimal;
         hbVP.Distributions.UseInnermostTotals = true;
         hbVP.HideHeader = true;
 
-        var hcCount : HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'ResponseCounts'), '');
+        var hcCount: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'ResponseCounts'), '');
         hcCount.DataSourceNodeId = DataSourceUtil.getDsId(context);
         hcCount.SubHeaders.Add(hbCount);
         table.ColumnHeaders.Add(hcCount);
 
-        var hcVP : HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'ResponseCounts'), '');
+        var hcVP: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'ResponseFrequency'), '');
         hcVP.DataSourceNodeId = DataSourceUtil.getDsId(context);
         hcVP.SubHeaders.Add(hbVP);
         table.ColumnHeaders.Add(hcVP);
 
         // global table settings
-        table.RemoveEmptyHeaders.Rows = false;
+        table.RemoveEmptyHeaders.Rows = true;
         table.Sorting.Rows.SortByType = TableSortByType.Position;
         table.Sorting.Rows.Position = 2;
         table.Sorting.Rows.Direction = TableSortDirection.Descending;
@@ -464,7 +475,7 @@ class PageCategorical {
      * @param {Object} context - {table: table, report: report, user: user, state: state, confirmit: confirmit, log: log, suppressSettings: suppressSettings}
      */
 
-    static function tableDrilldownTitle_Render(context){
+    static function tableDrilldownTitle_Render(context) {
 
         var report = context.report;
         var state = context.state;
@@ -472,10 +483,10 @@ class PageCategorical {
         var text = context.text;
 
         var drilldownId = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown') ? state.Parameters.GetString('p_Drilldown').split(":")[1] : '';
-        var project : Project = DataSourceUtil.getProject(context);
+        var project: Project = DataSourceUtil.getProject(context);
         var qe: QuestionnaireElement = new QuestionnaireElement(project, drilldownId);
         var q: Question = project.GetQuestion(qe);
 
         text.Output.Append(q.Text);
     }
-}
+    }
