@@ -1,10 +1,33 @@
 class Filters {
 
+  /**
+   * Get the list of all filters defined on the survey level based on survey data variables
+   * @param {object} context object {state: state, report: report, log: log}
+   * @returns {Array} - array of questions to filter survey data by (not page specific)
+   */
+  static function GetSurveyDataFilterList (context) {
+
+    var log = context.log;
+
+    var filterFromSurveyData = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'FiltersFromSurveyData');
+    return !filterFromSurveyData? [] : PulseProgramUtil.excludeItemsWithoutData(context, filterFromSurveyData);
+  }
+
+  /**
+   * Get the list of all filters defined on the survey level based on background variables
+   * @param {object} context object {state: state, report: report, log: log}
+   * @returns {Array} - array of questions to filter background data by (not page specific)
+   */
+  static function GetBackgroundDataFilterList (context) {
+
+    var log = context.log;
+    return DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Filters');
+  }
+
   /*
  * Get full filter list.
  * @param {object} context object {state: state, report: report, log: log}
  */
-
   static function GetFullFilterList (context) {
 
     var filterFromRespondentData = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Filters');
@@ -13,22 +36,59 @@ class Filters {
     return filterFromRespondentData.concat(filterFromSurveyData);
   }
 
+  /**
+   * Get the list of all filters defined on the survey level (including background and survey data variables)
+   * @param {object} context object {state: state, report: report, log: log}
+   * @returns {Array} - array of questions to filter both background and survey data by (not page specific)
+   */
+  static function GetGlobalFilterList (context) {
+
+    var log = context.log;
+    var filterFromRespondentData = GetBackgroundDataFilterList (context);
+    var filterFromSurveyData = GetSurveyDataFilterList (context);
+
+    return filterFromRespondentData.concat(filterFromSurveyData);
+  }
+
+  /**
+   * Get list of filters by type:
+   * background - global background; survey - global survey data vars, pageSpecific - survey data from pageSpecific ds
+   * @param {object} context object {state: state, report: report, log: log}
+   * @param {string} filtersType - type of filter list
+   * @returns {Array} filters - array of questions o filter by
+   */
+  static function GetFilterListByType (context, filtersType) {
+
+    var log = context.log;
+
+    //if filter type is not set it is global
+    if(!filtersType) {
+      filtersType = 'global';
+    }
+
+    if(filtersType === 'background') {
+      return GetBackgroundDataFilterList(context);
+    } else if (filtersType === 'survey') {
+      return GetSurveyDataFilterList(context);
+    } else if (filtersType === 'global'){
+      return GetGlobalFilterList (context);
+    }
+
+    throw new Error('Filters.GetFilterListByType: filter type '+filtersType+' cannot be handled.')
+  }
+
   /*
    * Reset filter parameters.
    * @param {object} context object {state: state, report: report, log: log}
    */
-
   static function ResetAllFilters (context) {
 
-    var state = context.state;
-    var report = context.report;
     var log = context.log;
-
-    var filterLevelParameters = GetFullFilterList (context);
     var filterNames = [];
     var i;
 
-    for (i=0; i<filterLevelParameters.length; i++) {
+    var filterSurveyLevelParameters = GetGlobalFilterList(context);
+    for (i=0; i<filterSurveyLevelParameters.length; i++) {
       filterNames.push('p_ScriptedFilterPanelParameter'+(i+1));
     }
 
@@ -37,68 +97,67 @@ class Filters {
     return;
   }
 
-  /*
+  /**
    * Populate filter parameters.
    * @param {object} context object {state: state, report: report, log: log}
    * @param {number} paramNum number of filter
    */
-
   static function populateScriptedFilterByOrder(context, paramNum) {
 
+    var log = context.log;
     var parameter = context.parameter;
-    var project : Project = DataSourceUtil.getProject(context);
-    var filterList = GetFullFilterList (context);
+    var filterList = GetFilterListByType (context);
 
-    if(filterList.length >= paramNum) {
+    // no question for this parameter placeholder
+    if (filterList.length < paramNum) {
+      return;
+    }
 
-      var answers: Answer[] = QuestionUtil.getQuestionAnswers(context, filterList[paramNum-1]);
+    var answers: Answer[] = QuestionUtil.getQuestionAnswers(context, filterList[paramNum-1]);
 
-      for(var i=0; i<answers.length; i++) {
+    for(var i=0; i<answers.length; i++) {
 
-        var val = new ParameterValueResponse();
-        val.StringValue = answers[i].Text;
-        val.StringKeyValue = answers[i].Precode;
-        parameter.Items.Add(val);
-      }
+      var val = new ParameterValueResponse();
+      val.StringValue = answers[i].Text;
+      val.StringKeyValue = answers[i].Precode;
+      parameter.Items.Add(val);
     }
 
     return;
   }
 
-  /*
+  /**
    * Hide filter placeholder if there's no filter question.
    * @param {object} context object {state: state, report: report, pageContext: pageContext, log: log}
    * @param {string} paramNum number of scripted filter
    * @returns {boolean} indicates if filter exists
    */
-
   static function hideScriptedFilterByOrder(context, paramNum) {
 
-    var pageContext = context.pageContext;
     var log = context.log;
-    var filterFromRespondentData = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Filters');
-    var filterList = GetFullFilterList (context);
+    var numberOfBackgroundDataFilters = GetBackgroundDataFilterList(context).length;
+    var filterList = GetFilterListByType(context);
+    var CurrentPageId = PageUtil.getCurrentPageIdInConfig(context);
 
     // paramNum should be less than number of filter components on all pages
     // paramNum should be less than number of filters based on BG vars on Response Rate page
-    if(paramNum > filterList.length || (pageContext.Items['CurrentPageId'] === 'Response_Rate' && paramNum >filterFromRespondentData.length)) {
+    if(paramNum > filterList.length || (CurrentPageId === 'Page_Response_Rate' && paramNum >numberOfBackgroundDataFilters)) {
       return true;    // hide
     }
 
     return false; // don't hide
   }
 
-  /*
+  /**
    * Get scripted filter title.
    * @param {object} context object {state: state, report: report, log: log}
    * @param {string} paramNum number of scripted filter
    * @returns {string} question title
    */
-
   static function getScriptedFilterNameByOrder(context, paramNum) {
 
-    var filterList = GetFullFilterList (context);
-    var state = context.state;
+    var log = context.log;
+    var filterList = GetFilterListByType (context);
 
     if(filterList.length >= paramNum) {
       return QuestionUtil.getQuestionTitle(context, filterList[paramNum-1]);
@@ -114,31 +173,33 @@ class Filters {
  * @return {String} filter script expression
  */
 
-  static function GeneratePanelFilterExpression (context) {
+  static function GeneratePanelFilterExpression (context, filtersType) {
 
     var state = context.state;
-    var report = context.report;
     var log = context.log;
 
+    var paramName = GetPanelFilterPrefixByType (context, filtersType);
+    var bgFilters = GetFilterListByType(context, 'background');
+    var filters = (filtersType==='background') ? bgFilters : GetFilterListByType(context, filtersType);
+    var startNum = (filtersType==='background') ? 0 : bgFilters.length;
     var filterExpr = [];
-    var filters = GetFullFilterList (context);
 
     for (var i=0; i<filters.length; i++) {
+      var paramId = paramName+(i+startNum+1);
 
-      if(!state.Parameters.IsNull('p_ScriptedFilterPanelParameter'+(i+1))) {
+      if(!state.Parameters.IsNull(paramId)) {
 
         // support for multi select. If you need multi-selectors, no code changes are needed, change only parameter setting + ? list css class
-        var responses = ParamUtil.GetSelectedCodes (context, 'p_ScriptedFilterPanelParameter'+(i+1));
+        var responses = ParamUtil.GetSelectedCodes(context, paramId);
         var individualFilterExpr = [];
         for (var j=0; j<responses.length; j++) {
           individualFilterExpr.push('IN('+DataSourceUtil.getDsId(context)+':'+filters[i]+', "'+responses[j]+'")');
         }
         filterExpr.push('('+individualFilterExpr.join(' OR ')+')');
       }
-
     }
-    return filterExpr.join(' AND ');
 
+    return filterExpr.join(' AND ');
   }
 
   /*
@@ -148,19 +209,17 @@ class Filters {
  * @return {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
  */
 
-  static function GetFiltersValues (context) {
+  static function GetFiltersValues (context, filtersType) {
 
-    var state = context.state;
-    var report = context.report;
     var log = context.log;
 
     var filterValues = [];
-    var filters = GetFullFilterList (context);
+    var filters = GetFilterListByType (context, filtersType);
+    var filterPrefix = 'p_ScriptedFilterPanelParameter';
 
     for (var i=0; i<filters.length; i++) {
-
       // support for multi select. If you need multi-selectors, no code changes are needed, change only parameter setting + ? list css class
-      var selectedOptions = ParamUtil.GetSelectedOptions(context, 'p_ScriptedFilterPanelParameter'+(i+1));
+      var selectedOptions = ParamUtil.GetSelectedOptions(context, filterPrefix+(i+1));
       var filterName = getScriptedFilterNameByOrder(context, i+1);
 
       if(selectedOptions.length>0) {
@@ -207,7 +266,6 @@ class Filters {
     return DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'IsTimePeriodFilterHidden')
   }
 
-
   /*
   * @description function to generate a script expression to filter by selected time period
   * @param {Object} context
@@ -224,9 +282,6 @@ class Filters {
 
     var timePeriod = DateUtil.defineDateRangeBasedOnFilters(context);
     var expression = [];
-    var year;
-    var month;
-    var day;
 
     // example: interview_start >= TODATE("2019-03-31")
     if(timePeriod.hasOwnProperty('startDateString') && timePeriod.startDateString) {
@@ -247,7 +302,6 @@ class Filters {
 	* @param {Array} question list
 	* @return {string} filter expression
     */
-
   static function notEmptyCommentsFilter(context, questions) {
 
     var expressions = [];
