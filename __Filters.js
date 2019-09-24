@@ -9,8 +9,7 @@ class Filters {
 
     var log = context.log;
 
-    var filterFromSurveyData = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'FiltersFromSurveyData');
-    return !filterFromSurveyData? [] : PulseProgramUtil.excludeItemsWithoutData(context, filterFromSurveyData);
+    return DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'FiltersFromSurveyData');
   }
 
   /**
@@ -178,7 +177,7 @@ class Filters {
     var state = context.state;
     var log = context.log;
 
-    var paramName = GetPanelFilterPrefixByType (context, filtersType);
+    var paramName = 'p_ScriptedFilterPanelParameter';
     var bgFilters = GetFilterListByType(context, 'background');
     var filters = (filtersType==='background') ? bgFilters : GetFilterListByType(context, filtersType);
     var startNum = (filtersType==='background') ? 0 : bgFilters.length;
