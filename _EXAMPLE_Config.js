@@ -30,7 +30,8 @@ public class Config {
   static var barChartColors_Categorical = [{color: '#888888'},
                                            {color: '#eaeaea'}];
 
-  static var categoricalCardLineColor = "#e8e8e8";
+  static var categoricalCardLineBackgroundColor = "#e8e8e8";
+  static var categoricalCardLineColor = "#93c5b9";
 
   static var wordcloudMainColor = '#8b565a';
   static var wordcloudSecondaryColor = '#888888';

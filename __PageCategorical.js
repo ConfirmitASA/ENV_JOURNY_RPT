@@ -337,8 +337,8 @@ class PageCategorical {
                         '	<label>' + item.result[j].name + '</label>' +
                         '	<div class="line-list__item__line">' +
                         '		<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 100 4">' +
-                        '			<line x1="1" y1="2" x2="99" y2="2" stroke="' + Config.categoricalCardLineColor + '" stroke-linecap="round" stroke-width="1.7"></line>' +
-                        (percent != 0 && '<line x1="1" y1="2" x2="' + (98 / 100) * percent + '" y2="2" stroke="#93c5b9" stroke-linecap="round" stroke-width="1.7"></line>') +
+                        '			<line x1="1" y1="2" x2="99" y2="2" stroke="' + Config.categoricalCardLineBackgroundColor + '" stroke-linecap="round" stroke-width="1.7"></line>' +
+                        (percent != 0 && '<line x1="1" y1="2" x2="' + (98 / 100) * percent + '" y2="2" stroke="' + Config.categoricalCardLineColor + '" stroke-linecap="round" stroke-width="1.7"></line>') +
                         '		</svg>' +
                         '	</div>' +
                         '	<div class="line-list__item__footer">' + percent + '%' + '<span class="line-list__item__footer__description">' + ' (' + count + ' responses)' + '</span>' + '</div>' +
