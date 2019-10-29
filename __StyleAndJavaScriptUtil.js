@@ -325,6 +325,10 @@ class StyleAndJavaScriptUtil {
     if(!isThreeDotsMenuNeeded) {
       css_string += '.material-card__title .kebab-menu { display: none; }';
     }
+	  
+    if (DataSourceUtil.ifSingleSurveyTypeUsed(context)) {      
+      css_string += '.filter-pane__section_type_surveys { display: none; }';
+    }
 
     // CSS to show only the latest n rows with comments
     // https://css-tricks.com/useful-nth-child-recipies/#article-header-id-2
