@@ -335,6 +335,10 @@ class ParamUtil {
 
     if(parameterId.indexOf('p_ScriptedFilterPanelParameter')===0) {
       parameterInfo = generateResourceObjectForFilterPanelParameter(context, parameterId);
+    } else if (parameterId.indexOf('p_ScriptedBBCompareParameter')===0) {
+      parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'BreakBy');
+    } else if (parameterId.indexOf('p_ScriptedFCompareParameter')===0) {
+      parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'Filter');
     } else {
       parameterInfo = reportParameterValuesMap[parameterId];
     }
@@ -438,6 +442,10 @@ class ParamUtil {
 
     if(parameterInfo.locationType === 'FilterPanel') {
       return parameterInfo.FilterQid;
+    }
+
+    if(parameterInfo.locationType === 'Compare') {
+      return parameterInfo.QId;
     }
 
     throw new Error('ParamUtil.getParameterValuesResource: Cannot define parameter value resource by given location.');
@@ -548,7 +556,7 @@ class ParamUtil {
     var paramNumber = parseInt(parameterId.substr('p_ScriptedFilterPanelParameter'.length, parameterId.length));
 
     resourceInfo.type = 'QuestionId';
-    resourceInfo.locationType = 'FilterPanel'
+    resourceInfo.locationType = 'FilterPanel';
 
     if(paramNumber <= filterList.length) {
       resourceInfo.FilterQid = filterList[paramNumber-1];
@@ -557,4 +565,24 @@ class ParamUtil {
     return resourceInfo;
   }
 
+  static function generateResourceObjectForCompareParameter(context, parameterId, parameterType) {
+
+    var resourceInfo = {};
+    var compareQuestionsList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
+    var parameterNamePrefix = parameterType === 'BreakBy'
+      ? 'p_ScriptedBBCompareParameter'
+      : (parameterType === 'Filter'
+        ? 'p_ScriptedFCompareParameter'
+        : '');
+    var paramNumber = parseInt(parameterId.substr(parameterNamePrefix.length, parameterId.length));
+
+    resourceInfo.type = 'QuestionId';
+    resourceInfo.locationType = 'Compare';
+
+    if(paramNumber <= compareQuestionsList.length) {
+      resourceInfo.QId = compareQuestionsList[paramNumber-1];
+    }
+
+    return resourceInfo;
+  }
 }
