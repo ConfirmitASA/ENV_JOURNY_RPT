@@ -31,7 +31,7 @@ class CompareUtil {
         var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
 
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
-        var surveyConfig = getSurveyConfig(context);
+        var surveyConfig = ParamUtil.getSurveyConfig(context);
         if (surveyConfig['Page_' + pageId]['EnableCompare' + parameterType + 'Section']) {
             var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'EnableCompare' + parameterType + 'Section');
 
