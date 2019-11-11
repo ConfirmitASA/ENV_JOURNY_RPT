@@ -91,6 +91,7 @@ class StyleAndJavaScriptUtil {
     /* NEW FOR REDESIGN */
     properties.push('survey: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Survey')));
     properties.push('filters: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Filters')));
+    properties.push('compare: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Compare')));
     properties.push('score: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Score')));
     properties.push('defaultPlaceholderTxt: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'BreakBy')));
     properties.push('tagPlaceholderTxt: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'TagQuestion')));
