@@ -31,14 +31,14 @@ class CompareUtil {
         var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
 
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
-        var surveyConfig = DataSourceUtil.getSurveyConfig(context);
-        if (surveyConfig['Page_' + pageId]['EnableCompare' + parameterType + 'Section']) {
+        try {
             var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'EnableCompare' + parameterType + 'Section');
-
-            return isThisTypeOfParameterEnabled && optionsList.length <= 0;
+        }
+        catch (e) {
+            return true; // if there's no such property for current page in Config
         }
 
-        return optionsList.length <= 0;
+        return isThisTypeOfParameterEnabled && optionsList.length <= 0;
     }
 
     /**
@@ -58,6 +58,15 @@ class CompareUtil {
         }
 
         return '';
+    }
+
+    static function setMaskForCompareParameter(context) {
+        var mask = context.mask;
+        var pageId = PageUtil.getCurrentPageIdInConfig(context);
+        var naCode = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'NA_answerCode');
+
+        mask.Access = ParameterAccessType.Exclusive;
+        mask.Keys.Add(naCode);
     }
 
 }

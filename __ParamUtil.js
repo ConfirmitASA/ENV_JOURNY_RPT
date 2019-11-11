@@ -586,12 +586,18 @@ class ParamUtil {
     return resourceInfo;
   }
 
-  static function maskOutNA(context) {
-    var mask = context.mask;
-    var pageId = PageUtil.getCurrentPageIdInConfig(context);
-    var naCode = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'NA_answerCode');
+  static function  MaskParameter (context) {
 
-    mask.Access = ParameterAccessType.Exclusive;
-    mask.Keys.Add(naCode);
+    var parameterId = context.parameterId;
+    var mask = context.mask;
+    var log = context.log;
+    var state = context.state;
+    var report = context.report;
+
+    // change second parameter of slice function if Compare parameters have more than 9 copies
+    var parameterIdWithoutNumber = parameterId.slice(parameterId.length - 1, 1) ;
+    if (parameterIdWithoutNumber === 'p_ScriptedBBCompareParameter' || parameterIdWithoutNumber === 'p_ScriptedFCompareParameter') {
+      CompareUtil.setMaskForCompareParameter(context);
+    }
   }
 }
