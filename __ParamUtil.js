@@ -585,4 +585,13 @@ class ParamUtil {
 
     return resourceInfo;
   }
+
+  static function maskOutNA(context) {
+    var mask = context.mask;
+    var pageId = PageUtil.getCurrentPageIdInConfig(context);
+    var naCode = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'NA_answerCode');
+
+    mask.Access = ParameterAccessType.Exclusive;
+    mask.Keys.Add(naCode);
+  }
 }
