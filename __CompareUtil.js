@@ -30,6 +30,13 @@ class CompareUtil {
                 : '');
         var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
 
+        var pageId = PageUtil.getCurrentPageIdInConfig(context);
+        if (Config[pageId]['EnableCompare' + parameterType + 'Section']) {
+            var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'EnableCompare' + parameterType + 'Section');
+
+            return isThisTypeOfParameterEnabled && optionsList.length <= 0;
+        }
+
         return optionsList.length <= 0;
     }
 
