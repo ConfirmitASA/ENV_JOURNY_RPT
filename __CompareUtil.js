@@ -60,6 +60,10 @@ class CompareUtil {
         return '';
     }
 
+    /**
+     * Set mask (NA) for Compare parameter.
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext, mask: mask}
+     */
     static function setMaskForCompareParameter(context) {
         var mask = context.mask;
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
@@ -67,6 +71,18 @@ class CompareUtil {
 
         mask.Access = ParameterAccessType.Exclusive;
         mask.Keys.Add(naCode);
+    }
+
+    /**
+     * Get Compare question id by index and type from Config
+     * @param {object} context object {state: state, report: report, log: log}
+     * @param {string} parameterType is used to identify parameter type ('BreakBy' or 'Filter') and choose correct question ids array in Config
+     * @param {string} parameterIndex index of parameter in question ids array in Config
+     * @returns {string} question id
+     */
+    static function getCompareQuestionIdFromConfig(context, parameterType, parameterIndex) {
+        var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
+        return parameterIndex - 1 < questionIds.length && parameterIndex > 0 ? questionIds[parameterIndex] : null;
     }
 
 }

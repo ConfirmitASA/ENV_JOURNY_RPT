@@ -247,7 +247,8 @@ class TableUtil{
             }
         }
 
-        var selectedOption = ParamUtil.GetSelectedOptions(context, breakByParameter)[0];
+        var selectedOptions = ParamUtil.GetSelectedOptions(context, breakByParameter)[0];
+        var selectedOption = selectedOptions[0];
 
         if(selectedOption==null || selectedOption.Code === 'na') {//no break by option is selected
             return;
@@ -292,6 +293,40 @@ class TableUtil{
             }
 
             nestedHeader.ShowTotals = false;
+            parentHeader.SubHeaders.Add(nestedHeader);
+
+            return;
+        }
+
+        if(breakByType === 'Answer') { // break by question's answer
+
+            var questionId;
+            // change second parameter of slice function if Compare parameters have more than 9 copies
+            var parameterIdWithoutNumber = breakByParameter.slice(0, -1);
+            if (parameterIdWithoutNumber === 'p_ScriptedBBCompareParameter') {
+                // change third parameter of getCompareQuestionIdFromConfig function if Compare parameters have more than 9 copies
+                questionId = CompareUtil.getCompareQuestionIdFromConfig(context, 'BreakBy', breakByParameter[breakByParameter.length - 1]);
+            }
+
+            var questionInfo = QuestionUtil.getQuestionInfo(context, questionId);
+            questionElem = QuestionUtil.getQuestionnaireElement(context, questionId);
+            nestedHeader = new HeaderQuestion(questionElem);
+
+            if(questionInfo.standardType === 'hierarchy') { // the same code exists in __PageResponseRate by demographics function :(
+                nestedHeader.ReferenceGroup.Enabled = true;
+                nestedHeader.ReferenceGroup.Self = false;
+                nestedHeader.ReferenceGroup.Levels = HierarchyUtil.getParentsForCurrentHierarchyNode(context).length+1;
+            }
+
+            var breakByMask: MaskFlat = new MaskFlat();
+            breakByMask.IsInclusive = true;
+            for (var i = 0; i < selectedOptions.length; i++) {
+                breakByMask.Codes.Add(selectedOptions[i].Code);
+            }
+            nestedHeader.AnswerMask = breakByMask;
+
+            nestedHeader.ShowTotals = false;
+
             parentHeader.SubHeaders.Add(nestedHeader);
 
             return;

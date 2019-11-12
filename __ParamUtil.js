@@ -595,7 +595,7 @@ class ParamUtil {
     var report = context.report;
 
     // change second parameter of slice function if Compare parameters have more than 9 copies
-    var parameterIdWithoutNumber = parameterId.slice(parameterId.length - 1, 1) ;
+    var parameterIdWithoutNumber = parameterId.slice(0, -1);
     if (parameterIdWithoutNumber === 'p_ScriptedBBCompareParameter' || parameterIdWithoutNumber === 'p_ScriptedFCompareParameter') {
       CompareUtil.setMaskForCompareParameter(context);
     }
