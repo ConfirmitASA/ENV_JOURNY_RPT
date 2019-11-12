@@ -202,43 +202,49 @@ class TableUtil{
    * @param {Header} parent header
    */
 
-    static function addBreakByNestedHeader(context, parentHeader) {
+    static function addBreakByNestedHeader(context, parentHeader, parameterInfo) {
 
         var log = context.log;
-        var pageId = PageUtil.getCurrentPageIdInConfig(context);
-        var breakByTimeUnits = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'BreakByTimeUnits');
-        var breakVariables = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'BreakVariables');
         var breakByParameter = null;
         var breakByType = null;
         var nestedHeader: HeaderQuestion;
         var questionElem: QuestionnaireElement;
 
-        if(breakByTimeUnits && breakVariables && breakVariables.length>0) {
-            throw new Error('TableUtil.addBreakByNestedHeader: only one property can be used for break by, exclude either BreakByTimeUnits or BreakVariables from config for the DS, page '+pageId);
-        }
+        if (parameterInfo) {
+            breakByParameter = parameterInfo.Id;
+            breakByType = parameterInfo.Type;
+        } else {
+            var pageId = PageUtil.getCurrentPageIdInConfig(context);
+            var breakByTimeUnits = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'BreakByTimeUnits');
+            var breakVariables = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'BreakVariables');
 
-        if(!(breakByTimeUnits || (breakVariables && breakVariables.length>0))) { // none of break by values set in config
-            return;
-        }
-        //TO DO: get rid of explicit page names
-        if(breakByTimeUnits && pageId === 'Page_Results') {
-            breakByParameter = 'p_TimeUnitNoDefault';
-            breakByType = 'TimeUnit';
-        } else if(breakByTimeUnits && pageId === 'Page_Categorical_') {
-            breakByParameter = 'p_CatDD_TimeUnitNoDefault';
-            breakByType = 'TimeUnit';
-        } else if(breakByTimeUnits && pageId === 'Page_CategoricalDrilldown') {
-            breakByParameter = 'p_CatDD_TimeUnitNoDefault';
-            breakByType = 'TimeUnit';
-        } else if(breakVariables && breakVariables.length>0 && pageId === 'Page_Results') {
-            breakByParameter = 'p_Results_BreakBy';
-            breakByType = 'Question';
-        } else if(breakVariables && breakVariables.length>0 && pageId === 'Page_Categorical_') {
-            breakByParameter = 'p_CategoricalDD_BreakBy';
-            breakByType = 'Question';
-        } else if(breakVariables && breakVariables.length>0 && pageId === 'Page_CategoricalDrilldown') {
-            breakByParameter = 'p_CategoricalDD_BreakBy';
-            breakByType = 'Question';
+            if (breakByTimeUnits && breakVariables && breakVariables.length > 0) {
+                throw new Error('TableUtil.addBreakByNestedHeader: only one property can be used for break by, exclude either BreakByTimeUnits or BreakVariables from config for the DS, page ' + pageId);
+            }
+
+            if (!(breakByTimeUnits || (breakVariables && breakVariables.length > 0))) { // none of break by values set in config
+                return;
+            }
+            //TO DO: get rid of explicit page names
+            if (breakByTimeUnits && pageId === 'Page_Results') {
+                breakByParameter = 'p_TimeUnitNoDefault';
+                breakByType = 'TimeUnit';
+            } else if (breakByTimeUnits && pageId === 'Page_Categorical_') {
+                breakByParameter = 'p_CatDD_TimeUnitNoDefault';
+                breakByType = 'TimeUnit';
+            } else if (breakByTimeUnits && pageId === 'Page_CategoricalDrilldown') {
+                breakByParameter = 'p_CatDD_TimeUnitNoDefault';
+                breakByType = 'TimeUnit';
+            } else if (breakVariables && breakVariables.length > 0 && pageId === 'Page_Results') {
+                breakByParameter = 'p_Results_BreakBy';
+                breakByType = 'Question';
+            } else if (breakVariables && breakVariables.length > 0 && pageId === 'Page_Categorical_') {
+                breakByParameter = 'p_CategoricalDD_BreakBy';
+                breakByType = 'Question';
+            } else if (breakVariables && breakVariables.length > 0 && pageId === 'Page_CategoricalDrilldown') {
+                breakByParameter = 'p_CategoricalDD_BreakBy';
+                breakByType = 'Question';
+            }
         }
 
         var selectedOption = ParamUtil.GetSelectedOptions(context, breakByParameter)[0];
