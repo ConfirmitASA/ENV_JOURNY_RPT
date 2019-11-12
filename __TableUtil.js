@@ -247,7 +247,7 @@ class TableUtil{
             }
         }
 
-        var selectedOptions = ParamUtil.GetSelectedOptions(context, breakByParameter)[0];
+        var selectedOptions = ParamUtil.GetSelectedOptions(context, breakByParameter);
         var selectedOption = selectedOptions[0];
 
         if(selectedOption==null || selectedOption.Code === 'na') {//no break by option is selected
