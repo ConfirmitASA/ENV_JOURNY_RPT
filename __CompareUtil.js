@@ -82,7 +82,7 @@ class CompareUtil {
      */
     static function getCompareQuestionIdFromConfig(context, parameterType, parameterIndex) {
         var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
-        return parameterIndex - 1 < questionIds.length && parameterIndex > 0 ? questionIds[parameterIndex] : null;
+        return parameterIndex - 1 < questionIds.length && parameterIndex >= 0 ? questionIds[parameterIndex] : null;
     }
 
 }
