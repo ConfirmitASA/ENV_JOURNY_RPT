@@ -81,8 +81,9 @@ class CompareUtil {
      * @returns {string} question id
      */
     static function getCompareQuestionIdFromConfig(context, parameterType, parameterIndex) {
+        var arrayParameterIndex = parseInt(parameterIndex - 1);
         var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
-        return parameterIndex - 1 < questionIds.length && parameterIndex - 1 >= 0 ? questionIds[parameterIndex - 1] : null;
+        return arrayParameterIndex < questionIds.length && arrayParameterIndex >= 0 ? questionIds[arrayParameterIndex] : null;
     }
 
 }
