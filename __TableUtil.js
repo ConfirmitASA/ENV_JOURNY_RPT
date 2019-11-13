@@ -357,7 +357,7 @@ class TableUtil{
         hsAvg.Statistics.Avg = true;
         hsAvg.Statistics.Count = false;
         hsAvg.HideHeader = true;
-        hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+' ('+(!onlyAverageRowSubheader ? TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')' : ''));
+        hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+(!onlyAverageRowSubheader ? (' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')') : ''));
         row.SubHeaders.Add(hsAvg);
 
         // Number of responses is in the 2nd row
