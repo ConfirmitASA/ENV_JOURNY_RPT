@@ -111,6 +111,10 @@ class TextAndParameterUtil {
         var text = context.text;
 
         var oldText = text.Output;
+        if (!oldText) {
+            return;
+        }
+
         text.Output = new TextBuilder();
         text.Output.Append('"' + oldText + '"');
 
