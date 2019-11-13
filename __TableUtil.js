@@ -334,12 +334,14 @@ class TableUtil{
     }
 
     /**
-     *Function adds AVG and Base subheader to a
-     *@param {object} context
-     *@param {Header} parent header
+     * Function adds AVG and Base (if baseToBeAdded is true) subheader to a new HeaderQuestion
+     * @param {object} context
+     * @param {string} qId - parent header question id
+     * @param {boolean} baseToBeAdded - flag: true if Base subheader should be added
+     * @return {HeaderQuestion} row
      */
 
-    static function getTrendQuestionHeader(context, qid) {
+    static function getTrendQuestionHeader(context, qid, baseToBeAdded) {
 
         var report = context.report;
 
@@ -355,16 +357,18 @@ class TableUtil{
         hsAvg.Statistics.Avg = true;
         hsAvg.Statistics.Count = false;
         hsAvg.HideHeader = true;
-        hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')');
+        hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+' ('+(baseToBeAdded ? TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')' : ''));
         row.SubHeaders.Add(hsAvg);
 
         // Number of responses is in the 2nd row
-        var hsN : HeaderStatistics = new HeaderStatistics();
-        hsN.Statistics.Avg = false;
-        hsN.Statistics.Count = true;
-        hsN.HideHeader = true;
-        hsN.Texts.Count = new Label(report.CurrentLanguage, qTitle+' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'N')+')');
-        row.SubHeaders.Add(hsN);
+        if (baseToBeAdded) {
+            var hsN: HeaderStatistics = new HeaderStatistics();
+            hsN.Statistics.Avg = false;
+            hsN.Statistics.Count = true;
+            hsN.HideHeader = true;
+            hsN.Texts.Count = new Label(report.CurrentLanguage, qTitle + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'N') + ')');
+            row.SubHeaders.Add(hsN);
+        }
 
         return row;
     }

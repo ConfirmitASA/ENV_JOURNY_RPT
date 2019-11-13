@@ -123,8 +123,9 @@ class PageKPI {
      * @function tableTrend_Render
      * @description function to render the Trend table
      * @param {Object} context - {table: table, pageContext: this.pageContext, report: report, user: user, state: state, confirmit: confirmit, log: log, suppressSettings: suppressSettings}
+     * @param {boolean} baseRowToBeAdded - flag: true if Base subheader should be added to each row HeaderQuestion
      */
-    static function tableTrend_Render(context){
+    static function tableTrend_Render(context, baseRowToBeAdded){
 
         var report = context.report;
         var state = context.state;
@@ -137,7 +138,7 @@ class PageKPI {
         var Qs = DataSourceUtil.getPagePropertyValueFromConfig (context, pageId, 'KPI');
 
         for (var i=0; i<Qs.length; i++) {
-            table.RowHeaders.Add(TableUtil.getTrendQuestionHeader(context, Qs[i]));
+            table.RowHeaders.Add(TableUtil.getTrendQuestionHeader(context, Qs[i], baseRowToBeAdded);
         }
         // add column - trending by Date variable
         var dateQId = DataSourceUtil.getSurveyPropertyValueFromConfig (context, 'DateQuestion');
