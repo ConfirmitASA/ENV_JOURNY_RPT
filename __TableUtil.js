@@ -357,6 +357,7 @@ class TableUtil{
         hsAvg.Statistics.Avg = true;
         hsAvg.Statistics.Count = false;
         hsAvg.HideHeader = true;
+        hsAvg.HideData = onlyAverageRowSubheader;
         hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+(!onlyAverageRowSubheader ? (' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')') : ''));
         row.SubHeaders.Add(hsAvg);
 
