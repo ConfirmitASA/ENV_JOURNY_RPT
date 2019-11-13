@@ -96,7 +96,7 @@ class CompareUtil {
      * Add Compare break by subheaders to parent header
      * @param {object} context object {state: state, report: report, log: log}
      * @param {Header} parentHeader
-     * @returns {boolean} flag that equals true if headers for at least one of the parameters have been added
+     * @returns {boolean} indicates if headers for at least one of the parameters have been added
      */
     static function addCompareBreakByNestedHeaders(context, parentHeader) {
         var headersAdded = false;
@@ -110,6 +110,36 @@ class CompareUtil {
         }
 
         return headersAdded;
+    }
+
+    /**
+     * Returns true if Compare mode is on (at least one of the Compare parameters of that type)
+     * @param {object} context object {state: state, report: report, log: log}
+     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
+     * @returns {boolean} indicates if Compare mode is on
+     **/
+    static function isInCompareModeByType(context, parameterType) {
+        var isInCompareMode = false;
+        var numberOfParameters;
+        var parameterNamePrefix;
+
+        if (parameterType === 'BreakBy') {
+            numberOfParameters = CompareUtil.numberOfBreakByParameters;
+            parameterNamePrefix = CompareUtil.breakByParameterNamePrefix;
+        } else if (parameterType === 'Filter') {
+            numberOfParameters = CompareUtil.numberOfFilterParameters;
+            parameterNamePrefix = CompareUtil.filterParameterNamePrefix;
+        }
+
+        for (var i = 1; i <= numberOfParameters; i++) {
+            var tempParameterName = parameterNamePrefix + i;
+            if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
+                isInCompareMode = true;
+                break;
+            }
+        }
+
+        return isInCompareMode;
     }
 
 }
