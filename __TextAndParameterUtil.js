@@ -101,4 +101,18 @@ class TextAndParameterUtil {
 
     }
 
+    /*
+     * Add quotes to text for Text Component
+     * @param {object} context {state: state, report: report, log: log, text: text}
+     */
+    static function addQuotesToLabel(context) {
+
+        var log = context.log;
+        var text = context.text;
+
+        var oldText = text.Output;
+        text.Output = new TextBuilder();
+        text.Output.Append('"' + oldText + '"');
+
+    }
 }
