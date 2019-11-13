@@ -169,6 +169,9 @@ class PageKPI {
             return true;
         }
 
+        if (CompareUtil.isInCompareModeByType(context, 'BreakBy')) {
+            return true;
+        }
 
 
         // check base value for the verbatim question. If it is less than VerbatimSuppressValue, Verbatim table is hidden
