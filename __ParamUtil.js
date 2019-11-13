@@ -335,9 +335,9 @@ class ParamUtil {
 
     if(parameterId.indexOf('p_ScriptedFilterPanelParameter')===0) {
       parameterInfo = generateResourceObjectForFilterPanelParameter(context, parameterId);
-    } else if (parameterId.indexOf('p_ScriptedBBCompareParameter')===0) {
+    } else if (parameterId.indexOf(CompareUtil.breakByParameterNamePrefix)===0) {
       parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'BreakBy');
-    } else if (parameterId.indexOf('p_ScriptedFCompareParameter')===0) {
+    } else if (parameterId.indexOf(CompareUtil.filterParameterNamePrefix)===0) {
       parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'Filter');
     } else {
       parameterInfo = reportParameterValuesMap[parameterId];
@@ -570,9 +570,9 @@ class ParamUtil {
     var resourceInfo = {};
     var compareQuestionsList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
     var parameterNamePrefix = parameterType === 'BreakBy'
-      ? 'p_ScriptedBBCompareParameter'
+      ? CompareUtil.breakByParameterNamePrefix
       : (parameterType === 'Filter'
-        ? 'p_ScriptedFCompareParameter'
+        ? CompareUtil.filterParameterNamePrefix
         : '');
     var paramNumber = parseInt(parameterId.substr(parameterNamePrefix.length, parameterId.length));
 
@@ -596,7 +596,7 @@ class ParamUtil {
 
     // change second parameter of slice function if Compare parameters have more than 9 copies
     var parameterIdWithoutNumber = parameterId.slice(0, -1);
-    if (parameterIdWithoutNumber === 'p_ScriptedBBCompareParameter' || parameterIdWithoutNumber === 'p_ScriptedFCompareParameter') {
+    if (parameterIdWithoutNumber === CompareUtil.breakByParameterNamePrefix || parameterIdWithoutNumber === CompareUtil.filterParameterNamePrefix) {
       CompareUtil.setMaskForCompareParameter(context);
     }
   }

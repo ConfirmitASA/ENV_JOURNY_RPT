@@ -30,9 +30,9 @@ class CompareUtil {
         var log = context.log;
         var parameterType = context.parameterType;
         var parameterNamePrefix = parameterType === 'BreakBy'
-            ? 'p_ScriptedBBCompareParameter'
+            ? CompareUtil.breakByParameterNamePrefix
             : (parameterType === 'Filter'
-                ? 'p_ScriptedFCompareParameter'
+                ? CompareUtil.filterParameterNamePrefix
                 : '');
         var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
 

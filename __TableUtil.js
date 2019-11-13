@@ -303,7 +303,7 @@ class TableUtil{
             var questionId;
             // change second parameter of slice function if Compare parameters have more than 9 copies
             var parameterIdWithoutNumber = breakByParameter.slice(0, -1);
-            if (parameterIdWithoutNumber === 'p_ScriptedBBCompareParameter') {
+            if (parameterIdWithoutNumber === CompareUtil.breakByParameterNamePrefix) {
                 // change third parameter of getCompareQuestionIdFromConfig function if Compare parameters have more than 9 copies
                 questionId = CompareUtil.getCompareQuestionIdFromConfig(context, 'BreakBy', breakByParameter[breakByParameter.length - 1]);
             }
