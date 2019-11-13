@@ -67,6 +67,8 @@ class PageKPI {
             row.IsCollapsed = true;
             row.HideHeader = true;
             TableUtil.maskOutNA(context, row);
+            var breakByHeadersAdded = CompareUtil.addCompareBreakByNestedHeaders(context, row);
+            row.HideHeader = breakByHeadersAdded;
             table.RowHeaders.Add(row);
         }
 
