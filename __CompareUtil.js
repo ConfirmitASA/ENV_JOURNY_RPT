@@ -1,5 +1,11 @@
 class CompareUtil {
 
+    static var numberOfBreakByParameters = 5;
+    static var breakByParameterNamePrefix = 'p_ScriptedBBCompareParameter';
+
+    static var numberOfFilterParameters = 5;
+    static var filterParameterNamePrefix = 'p_ScriptedFCompareParameter';
+
     /**
      * Get the list of compare question ids by type
      * @param {object} context object {state: state, report: report, log: log}
@@ -84,6 +90,26 @@ class CompareUtil {
         var arrayParameterIndex = parseInt(parameterIndex - 1);
         var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
         return arrayParameterIndex < questionIds.length && arrayParameterIndex >= 0 ? questionIds[arrayParameterIndex] : null;
+    }
+
+    /**
+     * Add Compare break by subheaders to parent header
+     * @param {object} context object {state: state, report: report, log: log}
+     * @param {Header} parentHeader
+     * @returns {boolean} flag that equals true if headers for at least one of the parameters have been added
+     */
+    static function addCompareBreakByNestedHeaders(context, parentHeader) {
+        var headersAdded = false;
+
+        for (var i = 1; i <= CompareUtil.numberOfBreakByParameters; i++) {
+            var tempParameterName = CompareUtil.breakByParameterNamePrefix + i;
+            if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
+                TableUtil.addBreakByNestedHeader(context, parentHeader, {Id: tempParameterName, Type: 'Answer'});
+                headersAdded = true;
+            }
+        }
+
+        return headersAdded;
     }
 
 }

@@ -337,11 +337,10 @@ class TableUtil{
      * Function adds AVG and Base (if baseToBeAdded is true) subheader to a new HeaderQuestion
      * @param {object} context
      * @param {string} qId - parent header question id
-     * @param {boolean} onlyAverageRowSubheader - flag: true if Base subheader should NOT be added
      * @return {HeaderQuestion} row
      */
 
-    static function getTrendQuestionHeader(context, qid, onlyAverageRowSubheader) {
+    static function getTrendQuestionHeader(context, qid) {
 
         var report = context.report;
 
@@ -357,12 +356,13 @@ class TableUtil{
         hsAvg.Statistics.Avg = true;
         hsAvg.Statistics.Count = false;
         hsAvg.HideHeader = true;
-        hsAvg.HideData = onlyAverageRowSubheader;
-        hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+(!onlyAverageRowSubheader ? (' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')') : ''));
+        var breakByHeadersAdded = CompareUtil.addCompareBreakByNestedHeaders(context, hsAvg);
+        hsAvg.HideData = breakByHeadersAdded;
+        hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+(!breakByHeadersAdded ? (' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')') : ''));
         row.SubHeaders.Add(hsAvg);
 
         // Number of responses is in the 2nd row
-        if (!onlyAverageRowSubheader) {
+        if (!breakByHeadersAdded) {
             var hsN: HeaderStatistics = new HeaderStatistics();
             hsN.Statistics.Avg = false;
             hsN.Statistics.Count = true;
