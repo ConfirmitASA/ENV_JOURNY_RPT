@@ -110,8 +110,8 @@ class TextAndParameterUtil {
         var log = context.log;
         var text = context.text;
 
-        var oldText = text.Output;
-        if (!oldText) {
+        var oldText = text.Output.ToString();
+        if (oldText.length <= 0) {
             return;
         }
 
