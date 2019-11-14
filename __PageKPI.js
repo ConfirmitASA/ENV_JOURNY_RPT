@@ -226,15 +226,16 @@ class PageKPI {
             var result = {qid: Qs[i], title: QuestionUtil.getQuestionTitle (context, Qs[i]), score: 'N/A'};
 
             if (!SuppressUtil.isGloballyHidden(context) && report.TableUtils.GetRowValues("KPI:KPI",i+1).length) {
+                var cell : Datapoint;
                 if (numberOfCompareBreakByOptions <= 0) {
-                    var cell : Datapoint = report.TableUtils.GetCellValue("KPI:KPI",i+1,1);
+                    cell = report.TableUtils.GetCellValue("KPI:KPI",i+1,1);
                     if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                         result.score = parseFloat(cell.Value.toFixed(Config.Decimal));
                     }
                 } else {
                     result.multiScore = [];
                     for (var j = 0; j < numberOfCompareBreakByOptions; j++) {
-                        var cell : Datapoint = report.TableUtils.GetCellValue("KPI:KPI",i*numberOfCompareBreakByOptions+j+1,1);
+                        cell = report.TableUtils.GetCellValue("KPI:KPI",i*numberOfCompareBreakByOptions+j+1,1);
                         if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                             result.multiScore.add(parseFloat(cell.Value.toFixed(Config.Decimal)));
                         }
