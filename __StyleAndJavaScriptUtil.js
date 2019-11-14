@@ -340,6 +340,12 @@ class StyleAndJavaScriptUtil {
       css_string += '.card__verbatim-container tbody tr:not(:nth-last-child(-n+' + numberOfVerbatimComments + ')) { display: none; }';
     }
 
+    if(CompareUtil.isInCompareMode(context)) {
+      css_string += '.highcharts-point { fill: transparent; stroke: transparent; }';
+    } else {
+      css_string += '.highcharts-legend { display: none; }';
+    }
+
     return '<style>'+css_string+'</style>';
   }
 
