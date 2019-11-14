@@ -237,7 +237,7 @@ class PageKPI {
                     for (var j = 0; j < numberOfCompareBreakByOptions; j++) {
                         cell = report.TableUtils.GetCellValue("KPI:KPI",i*numberOfCompareBreakByOptions+j+1,1);
                         if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
-                            result.multiScore.add(parseFloat(cell.Value.toFixed(Config.Decimal)));
+                            result.multiScore.push(parseFloat(cell.Value.toFixed(Config.Decimal)));
                         }
                     }
                 }
