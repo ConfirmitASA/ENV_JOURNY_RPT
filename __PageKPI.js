@@ -245,6 +245,9 @@ class PageKPI {
                             });
                         }
                     }
+                    if (result.multiScore.length <= 0) {
+                        result.multiScore = 'N/A';
+                    }
                 }
             }
             results.push(result);
