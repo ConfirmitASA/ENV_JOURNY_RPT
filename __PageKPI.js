@@ -308,7 +308,7 @@ class PageKPI {
 
                 var content = {
                     header: '<h2 class="card__title card__title_position_center">' + kpiResults[i].title + '</h2>',
-                    data: '<div id="gauge-container-' + kpiResults[i].qid + '"></div>',
+                    data: '<div id="kpi-data-container-' + kpiResults[i].qid + '"></div>',
                     footer: ''
                 };
 
