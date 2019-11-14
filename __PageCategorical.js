@@ -364,9 +364,25 @@ class PageCategorical {
      */
     static function tableDrilldown_Hide(context) {
         var state = context.state;
-        var isDrilldowned = state.Parameters.IsNull('p_Drilldown') || !state.Parameters.GetString('p_Drilldown');
+        var log = context.log;
+      
+        var isDrilledDown = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown');        
+        if (isDrilledDown) {         
+          var drillDownQId = state.Parameters.GetString('p_Drilldown').split(":")[1];    
+          var lists = getTopListCollection(context);
+          for (var i = 0; i < lists.length; i++) {
+            var item = lists[i];    
+            if(drillDownQId == item.qid) {
+               if(item.result.length == 0) {
+                   return true; // when no data for the drilled down question (the 30 answers rule is not fulfilled), we hide the Drilldown table
+               } else {
+                   break;       // when we have data, check other conditions
+               }  
+            }   
+          }
+        }      
         var isExcel = state.ReportExecutionMode == ReportExecutionMode.ExcelExport;
-        return isExcel || isDrilldowned || SuppressUtil.isGloballyHidden(context);
+        return isExcel || !isDrilledDown || SuppressUtil.isGloballyHidden(context);
     }
 
 
@@ -463,8 +479,8 @@ class PageCategorical {
      */
     static function tableDrilldownTitle_Hide(context) {
         var state = context.state;
-        var isDrilldowned = state.Parameters.IsNull('p_Drilldown') || !state.Parameters.GetString('p_Drilldown');
-        return isDrilldowned || SuppressUtil.isGloballyHidden(context);
+        var isDrilledDown = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown');    
+        return !isDrilledDown || SuppressUtil.isGloballyHidden(context);
     }
 
 
