@@ -169,7 +169,7 @@ class PageKPI {
             return true;
         }
 
-        if (CompareUtil.isInCompareModeByType(context, 'BreakBy')) {
+        if (CompareUtil.isInCompareMode(context)) {
             return true;
         }
 

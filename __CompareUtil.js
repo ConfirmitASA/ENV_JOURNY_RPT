@@ -142,4 +142,13 @@ class CompareUtil {
         return isInCompareMode;
     }
 
+    /**
+     * Returns true if Compare mode is on (for all types of Compare parameters)
+     * @param {object} context object {state: state, report: report, log: log}
+     * @returns {boolean} indicates if Compare mode is on
+     **/
+    static function isInCompareMode(context) {
+        return CompareUtil.isInCompareModeByType(context, 'BreakBy') || CompareUtil.isInCompareModeByType(context, 'Filter');
+    }
+
 }
