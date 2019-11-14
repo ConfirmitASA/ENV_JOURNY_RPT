@@ -223,7 +223,7 @@ class PageKPI {
         var selectedCompareBreakByOptions = CompareUtil.getSelectedCompareBreakByOptions(context);
         var results = [];
         for (var i=0; i < Qs.length; i++) {
-            var result = {qid: Qs[i], title: QuestionUtil.getQuestionTitle (context, Qs[i]), score: 'N/A'};
+            var result = {qid: Qs[i], title: QuestionUtil.getQuestionTitle (context, Qs[i])};
 
             if (!SuppressUtil.isGloballyHidden(context) && report.TableUtils.GetRowValues("KPI:KPI",i+1).length) {
                 var cell : Datapoint;
@@ -231,6 +231,8 @@ class PageKPI {
                     cell = report.TableUtils.GetCellValue("KPI:KPI",i+1,1);
                     if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                         result.score = parseFloat(cell.Value.toFixed(Config.Decimal));
+                    } else {
+                        result.score = 'N/A';
                     }
                 } else {
                     result.multiScore = [];
