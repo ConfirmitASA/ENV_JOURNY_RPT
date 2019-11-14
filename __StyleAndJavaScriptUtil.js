@@ -238,6 +238,8 @@ class StyleAndJavaScriptUtil {
   static function applyTheme(context) {
 
     var state = context.state;
+    var pageContext = context.pageContext;
+
     var greenColor = Config.primaryGreenColor;
     var redColor = Config.primaryRedColor;
     var greyColor = Config.primaryGreyColor;
@@ -342,6 +344,9 @@ class StyleAndJavaScriptUtil {
 
     if(CompareUtil.isInCompareMode(context)) {
       css_string += '.highcharts-point { fill: transparent; stroke: transparent; }';
+      if (pageContext.Items['CurrentPageId'] === 'KPI') {
+        css_string += '.card_type_verbatim { display: none; }';
+      }
     } else {
       css_string += '.highcharts-legend { display: none; }';
     }
