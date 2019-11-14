@@ -69,7 +69,7 @@ class StyleAndJavaScriptUtil {
    * - therefore are build with help of Reportal scripting
    * will be properties of ReportTemplate global variable
    * The function below will build that variable.
-   * @param {object} context {state: state, report: report, log: log}
+   * @param {object} context {state: state, report: report, log: log, pageContext: pageContext}
    * @returns {string} script string
    */
 
@@ -89,6 +89,8 @@ class StyleAndJavaScriptUtil {
 
 
     /* NEW FOR REDESIGN */
+    properties.push('isInCompareMode: '+JSON.stringify(CompareUtil.isInCompareMode(context)));
+
     properties.push('survey: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Survey')));
     properties.push('filters: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Filters')));
     properties.push('compare: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Compare')));
