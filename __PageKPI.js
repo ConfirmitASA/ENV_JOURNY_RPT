@@ -235,7 +235,7 @@ class PageKPI {
                 } else {
                     result.multiScore = [];
                     for (var j = 0; j < selectedCompareBreakByOptions.length; j++) {
-                        cell = report.TableUtils.GetCellValue("KPI:KPI",i*numberOfCompareBreakByOptions+j+1,1);
+                        cell = report.TableUtils.GetCellValue("KPI:KPI",i*selectedCompareBreakByOptions.length+j+1,1);
                         if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                             result.multiScore.push({
                                 value: parseFloat(cell.Value.toFixed(Config.Decimal)),
