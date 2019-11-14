@@ -161,7 +161,7 @@ class CompareUtil {
 
         for (var i = 1; i <= CompareUtil.numberOfBreakByParameters; i++) {
             var tempParameterName = CompareUtil.breakByParameterNamePrefix + i;
-            options = options.push(ParamUtil.GetSelectedCodes(context, tempParameterName));
+            options = options.concat(ParamUtil.GetSelectedCodes(context, tempParameterName));
         }
 
         return options;
