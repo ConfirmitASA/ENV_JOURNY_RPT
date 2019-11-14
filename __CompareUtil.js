@@ -152,19 +152,19 @@ class CompareUtil {
     }
 
     /**
-     * Get number of selected options for all Compare break by parameters
+     * Get selected options for all Compare break by parameters
      * @param {object} context object {state: state, report: report, log: log}
-     * @returns {int} numberOfOptions
+     * @returns {Array} options
      **/
-    static function getNumberOfSelectedCompareBreakByOptions(context) {
-        var numberOfOptions = 0;
+    static function getSelectedCompareBreakByOptions(context) {
+        var options = [];
 
         for (var i = 1; i <= CompareUtil.numberOfBreakByParameters; i++) {
             var tempParameterName = CompareUtil.breakByParameterNamePrefix + i;
-            numberOfOptions += ParamUtil.GetSelectedCodes(context, tempParameterName).length;
+            options = options.push(ParamUtil.GetSelectedCodes(context, tempParameterName));
         }
 
-        return numberOfOptions;
+        return options;
     }
 
 }
