@@ -151,4 +151,20 @@ class CompareUtil {
         return CompareUtil.isInCompareModeByType(context, 'BreakBy') || CompareUtil.isInCompareModeByType(context, 'Filter');
     }
 
+    /**
+     * Get number of selected options for all Compare break by parameters
+     * @param {object} context object {state: state, report: report, log: log}
+     * @returns {int} numberOfOptions
+     **/
+    static function getNumberOfSelectedCompareBreakByOptions(context) {
+        var numberOfOptions = 0;
+
+        for (var i = 1; i <= CompareUtil.numberOfBreakByParameters; i++) {
+            var tempParameterName = CompareUtil.breakByParameterNamePrefix + i;
+            numberOfOptions += ParamUtil.GetSelectedCodes(context, tempParameterName).length;
+        }
+
+        return numberOfOptions;
+    }
+
 }
