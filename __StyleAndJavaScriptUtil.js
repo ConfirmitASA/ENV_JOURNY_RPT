@@ -35,6 +35,7 @@ class StyleAndJavaScriptUtil {
 
     styleModule.barChartColors_NormVsScore = Config.barChartColors_NormVsScore;
     styleModule.greyColor = Config.primaryGreyColor;
+    styleModule.multiChartColors = Config.multiChartColors;
 
     return styleModule;
   }
