@@ -307,7 +307,7 @@ class PageKPI {
             } else {
 
                 var content = {
-                    header: '<span class="card__title card__title_position_center">' + TextAndParameterUtil.getTextTranslationByKey(context, 'Page_KPI_Trend.trendTitle') + '</span><h2 class="card__subtitle card__subtitle_position_center">' + (kpiResults[i].title ? '"' + kpiResults[i].title + '"' : '') + '</h2>',
+                    header: '<span class="card__title card__title_position_center">' + TextAndParameterUtil.getTextTranslationByKey(context, 'Page_KPI_Trend.trendTitle') + '</span><h2 class="card__subtitle card__subtitle_italic card__subtitle_position_center">' + (kpiResults[i].title ? '"' + kpiResults[i].title + '"' : '') + '</h2>',
                     data: '<div id="kpi-data-container-' + kpiResults[i].qid + '"></div>',
                     footer: ''
                 };
