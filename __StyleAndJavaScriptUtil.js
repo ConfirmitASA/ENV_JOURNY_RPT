@@ -346,7 +346,7 @@ class StyleAndJavaScriptUtil {
     if(CompareUtil.isInCompareMode(context)) {
       css_string += '.highcharts-point { fill: transparent; stroke: transparent; }';
       if (pageContext.Items['CurrentPageId'] === 'KPI') {
-        css_string += '.card_type_kpi .card__content { margin-right: -1em; }';
+        css_string += '@media screen { .card_type_kpi .card__content { margin-right: -1em; } }';
         css_string += '.card_type_verbatim { display: none; }';
       }
     } else {
