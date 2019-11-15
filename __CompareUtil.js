@@ -167,4 +167,17 @@ class CompareUtil {
         return options;
     }
 
+    /**
+     * Returns true if there's EnableCompare*Section (*: 'BreakBy' or 'Filter') flag for  current page in Config
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
+     * @returns {boolean} isCompareSectionNeeded
+     **/
+    static function isCompareSectionNeeded(context) {
+        var pageContext = context.pageContext;
+        var pageId = pageContext.Items['CurrentPageId'];
+
+        return DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection')
+        || DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection');
+    }
+
 }

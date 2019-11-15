@@ -348,8 +348,11 @@ class StyleAndJavaScriptUtil {
         css_string += '.card_type_verbatim { display: none; }';
       }
     } else {
-      css_string += '.filter-pane__section_type_compare { display: none; }';
       css_string += '.highcharts-legend { display: none; }';
+    }
+
+    if (!CompareUtil.isCompareSectionNeeded(context)) {
+      css_string += '.filter-pane__section_type_compare { display: none; }';
     }
 
     return '<style>'+css_string+'</style>';
