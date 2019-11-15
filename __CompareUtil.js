@@ -144,11 +144,20 @@ class CompareUtil {
 
     /**
      * Returns true if Compare mode is on (for all types of Compare parameters)
-     * @param {object} context object {state: state, report: report, log: log}
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
      * @returns {boolean} indicates if Compare mode is on
      **/
     static function isInCompareMode(context) {
-        return CompareUtil.isInCompareModeByType(context, 'BreakBy') || CompareUtil.isInCompareModeByType(context, 'Filter');
+        var pageContext = context.pageContext;
+        var pageId = pageContext.Items['CurrentPageId'];
+
+        var isInCompareBreakByMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection')
+            && CompareUtil.isInCompareModeByType(context, 'BreakBy');
+
+        var isInCompareFilterMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection')
+            && CompareUtil.isInCompareModeByType(context, 'Filter');
+
+        return isInCompareBreakByMode || isInCompareFilterMode;
     }
 
     /**
