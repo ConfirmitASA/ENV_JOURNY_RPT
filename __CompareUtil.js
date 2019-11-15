@@ -151,11 +151,23 @@ class CompareUtil {
         var pageContext = context.pageContext;
         var pageId = pageContext.Items['CurrentPageId'];
 
-        var isInCompareBreakByMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection')
-            && CompareUtil.isInCompareModeByType(context, 'BreakBy');
+        var isInCompareBreakByMode;
+        try {
+            isInCompareBreakByMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection')
+                && CompareUtil.isInCompareModeByType(context, 'BreakBy');
+        }
+        catch(e) {
+            isInCompareBreakByMode = false; // if there's no such property for current page in Config
+        }
 
-        var isInCompareFilterMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection')
-            && CompareUtil.isInCompareModeByType(context, 'Filter');
+        var isInCompareFilterMode;
+        try {
+            isInCompareFilterMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection')
+                && CompareUtil.isInCompareModeByType(context, 'Filter');
+        }
+        catch(e) {
+            isInCompareFilterMode = false; // if there's no such property for current page in Config
+        }
 
         return isInCompareBreakByMode || isInCompareFilterMode;
     }
