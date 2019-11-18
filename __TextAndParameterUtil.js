@@ -115,6 +115,11 @@ class TextAndParameterUtil {
             return;
         }
 
+        var oldText = oldText.Trim();
+        if (oldText.slice(oldText.length - 4) === '<br>') {
+            oldText = oldText.slice(0, oldText.length - 4);
+        }
+
         text.Output = new TextBuilder();
         text.Output.Append('"' + oldText + '"');
 
