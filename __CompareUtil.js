@@ -197,8 +197,19 @@ class CompareUtil {
         var pageContext = context.pageContext;
         var pageId = pageContext.Items['CurrentPageId'];
 
-        return DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection')
-        || DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection');
+        var isCompareBreakByNeeded = false;
+        try {
+            isCompareBreakByNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection');
+        }
+        catch (e) { }
+
+        var isCompareFilterNeeded = false;
+        try {
+            isCompareFilterNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection');
+        }
+        catch (e) { }
+
+        return isCompareBreakByNeeded || isCompareFilterNeeded;
     }
 
 }
