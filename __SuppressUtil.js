@@ -36,8 +36,8 @@ class SuppressUtil {
         var type = suppressSettings.type;
         var displayBaseOption = suppressSettings.displayBaseOption;
         var displayCellOption = suppressSettings.displayCellOption;
-        var suppressValue = suppressSettings.minBase || Config.SuppressSettings.TableSuppressValue;
-        var cellValue = suppressSettings.cellLimit || suppressValue;
+        var suppressValue = suppressSettings.minBase != null ? suppressSettings.minBase : Config.SuppressSettings.TableSuppressValue;
+        var cellValue = suppressSettings.cellLimit != null ? suppressSettings.cellValue : suppressValue;
 
         table.SuppressData.SuppressData = true;
         table.SuppressData.BaseLessThan = suppressValue;
