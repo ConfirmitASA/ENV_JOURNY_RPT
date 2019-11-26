@@ -282,13 +282,11 @@ class PageKPI {
     }
 
     /**
-     * @memberof PageCategorical
-     * @function buildCategoricalTiles
-     * @description function to generate material cards with categories
+     * @memberof PageKPI
+     * @function buildKPITiles
+     * @description function to generate material cards with KPI gauge or line list
      * @param {Object} context - {report: report, user: user, state: state, confirmit: confirmit, log: log}
      */
-
-
     static function buildKPITiles (context) {
 
         var report = context.report;
@@ -297,7 +295,7 @@ class PageKPI {
         var text = context.text;
 
         // render cards
-        var kpiResults = getKPIResult(context);
+        var kpiResults = PageKPI.getKPIResult(context);
         for (var i=0; i<kpiResults.length; i++) {
 
             if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport) {
@@ -312,7 +310,7 @@ class PageKPI {
                     footer: ''
                 };
 
-                CardUtil.RenderRedesignedCard (context, content, 'card_small card_type_kpi');
+                CardUtil.RenderRedesignedCard (context, content, 'card_small card_type_kpi card_fixed-content-height');
             }
         }
     }
