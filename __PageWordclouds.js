@@ -81,6 +81,7 @@ class PageWordclouds {
 
     var table = context.table;
     var report = context.report;
+    var state = context.state;
 
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var qId = ParamUtil.GetSelectedCodes(context, "p_WordcloudQs");
