@@ -111,6 +111,11 @@ class PageWordclouds {
 
     table.RowHeaders.Add(questionHeader_word);
     table.ColumnHeaders.Insert(0, hs); //table.ColumnHeaders.Insert(0, questionHeader_frequency);
+
+    var suppressSettings = {type: 'row', displayBaseOption: 'hide', displayCellOption: 'hide', minBase: 2};
+    SuppressUtil.setTableSuppress(table, suppressSettings);
+    table.RemoveEmptyHeaders.Rows = true;
+
     table.Use1000Separator = false;
 
   }
