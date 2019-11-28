@@ -103,20 +103,22 @@ class PageWordclouds {
     questionHeader_frequency.Preaggregation = StatisticsType.Sum;
     questionHeader_frequency.Decimals = 0;
     questionHeader_frequency.HideHeader = true;
+    questionHeader_frequency.HideData = true;
+
+    var questionHeader_formula : HeaderFormula = new HeaderFormula();
+    questionHeader_formula.HideHeader = true;
+    questionHeader_formula.Type = FormulaType.Expression;
+    questionHeader_formula.Expression = "if(cellv(col-1,row) > 1, cellv(col-1,row), emptyv())";
 
     // add header segment to change title for Excel export
     var hs: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'NumberOfTimesMentioned'), '');
     hs.DataSourceNodeId = DataSourceUtil.getDsId (context);
-    hs.SubHeaders.Add(questionHeader_frequency);
+    hs.SubHeaders.Add(questionHeader_formula);
 
     table.RowHeaders.Add(questionHeader_word);
-    table.ColumnHeaders.Insert(0, hs); //table.ColumnHeaders.Insert(0, questionHeader_frequency);
-
-    var suppressSettings = {type: 'row', displayBaseOption: 'hide', displayCellOption: 'hide', minBase: 2};
-    SuppressUtil.setTableSuppress(table, suppressSettings);
-    table.RemoveEmptyHeaders.Rows = true;
-
+    table.ColumnHeaders.Insert(0, questionHeader_frequency);
+    table.ColumnHeaders.Insert(1, hs); //table.ColumnHeaders.Insert(0, questionHeader_frequency);
     table.Use1000Separator = false;
-
+    table.RemoveEmptyHeaders.Rows = true;
   }
 }
