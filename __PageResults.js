@@ -39,7 +39,7 @@ class PageResults {
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
     table.RemoveEmptyHeaders.Rows = true;
-    table.RemoveEmptyHeaders.Columns = true;
+    table.RemoveEmptyHeaders.Columns = false;
     table.Caching.Enabled = false;
 
   }
