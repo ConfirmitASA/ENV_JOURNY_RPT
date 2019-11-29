@@ -14,8 +14,6 @@ class PageResults {
     var log = context.log;
     var suppressSettings = context.suppressSettings;
 
-    tableStatements_AddRows(context);
-    SuppressUtil.setTableSuppress(table, suppressSettings);
 
     if(!CompareUtil.isInCompareMode(context)) {
       tableStatements_AddColumns(context, bannerId);
@@ -29,7 +27,14 @@ class PageResults {
       addResponsesColumn(context, totalHeader);
       table.ColumnHeaders.Add(totalHeader);
       tableStatements_AddColumnsInCompareMode(context);
+
+      for (var i = 0; i < table.ColumnHeaders.Count; i++) {
+        TableUtil.addBreakByNestedHeader(context, table.ColumnHeaders[i]);
+      }
     }
+
+    tableStatements_AddRows(context);
+    SuppressUtil.setTableSuppress(table, suppressSettings);
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
@@ -142,7 +147,9 @@ class PageResults {
       var headerQuestion : HeaderQuestion = new HeaderQuestion(questionnaireElement);
       headerQuestion.IsCollapsed = true;
       TableUtil.maskOutNA(context, headerQuestion);
-      TableUtil.addBreakByNestedHeader(context, headerQuestion);
+      if (!CompareUtil.isInCompareMode(context)) {
+        TableUtil.addBreakByNestedHeader(context, headerQuestion);
+      }
       table.RowHeaders.Add(headerQuestion);
     }
   }
@@ -175,7 +182,9 @@ class PageResults {
       categorization.Collapsed = false;
       categorization.Totals = true;
 
-      TableUtil.addBreakByNestedHeader(context, categorization);
+      if (!CompareUtil.isInCompareMode(context)) {
+        TableUtil.addBreakByNestedHeader(context, categorization);
+      }
       table.RowHeaders.Add(categorization);
     }
 
