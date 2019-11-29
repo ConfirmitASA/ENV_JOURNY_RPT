@@ -14,14 +14,21 @@ class PageResults {
     var log = context.log;
     var suppressSettings = context.suppressSettings;
 
-    tableStatements_AddColumns(context, bannerId);
     tableStatements_AddRows(context);
-    tableStatements_ApplyConditionalFormatting(context);
     SuppressUtil.setTableSuppress(table, suppressSettings);
+
+    if(!CompareUtil.isInCompareMode(context)) {
+      tableStatements_AddColumns(context, bannerId);
+      tableStatements_ApplyConditionalFormatting(context);
+    } else {
+      addScore(context);
+      tableStatements_AddColumnsInCompareMode(context);
+    }
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
     table.RemoveEmptyHeaders.Rows = true;
+    table.RemoveEmptyHeaders.Columns = false;
     table.Caching.Enabled = false;
 
   }
@@ -40,7 +47,7 @@ class PageResults {
   /*
 * Column Banner selector for Statements table
 * @param {object} context: {state: state, report: report, log: log, table: table}
-* @param {string} bannerId: explicit bannerId to use, not mandotary
+* @param {string} bannerId: explicit bannerId to use, not mandatory
 */
 
   static function tableStatements_AddColumns(context, bannerId) {
@@ -51,6 +58,36 @@ class PageResults {
     tableStatements_AddColumns_Banner0(context); // default set
     return;
 
+  }
+
+
+  /*
+* add columns in Compare mode
+* @param {object} context: {state: state, report: report, log: log, table: table}
+*/
+  static function tableStatements_AddColumnsInCompareMode(context) {
+    var log = context.log;
+    var table = context.table;
+
+    var pageId = PageUtil.getCurrentPageIdInConfig(context);
+    var compareModeQs = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'CompareModeColumnVariables');
+
+    if(compareModeQs.length > 0) {
+      for(var i = 0; i < compareModeQs.length; i++) {
+        var qe : QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, compareModeQs[i]);
+        var hq : HeaderQuestion = new HeaderQuestion(qe);
+        hq.ShowTotals = false;
+
+        addScore(context, hq);
+        addResponsesColumn(context, hq);
+
+        table.ColumnHeaders.Add(hq);
+      }
+    } else {
+      throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
+    }
+
+    //log.LogDebug(compareModeQs);
   }
 
   /*
@@ -182,13 +219,21 @@ class PageResults {
       avg.Type = FormulaType.Expression;
       avg.Expression = 'cellv(col+1, row)';
       avg.Decimals = 0;
-      avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
+     // avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
       var score: HeaderStatistics = new HeaderStatistics();
       score.Decimals = 0;
       score.Statistics.Avg = true;
       score.HideData = true;
-      score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
+      //score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
+
+      if(CompareUtil.isInCompareMode(context)) {
+        avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
+        score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Total');
+      } else {
+        avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
+        score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
+      }
 
       if(parentHeader) {
         parentHeader.SubHeaders.Add(avg);
@@ -210,7 +255,7 @@ class PageResults {
       fav.Type = FormulaType.Expression;
       fav.Expression = 'cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row)';
       fav.Decimals = 0;
-      fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
+      //fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
 
       //add distribution barChart
       bcCategories.RecodingIdent = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecodingId');
@@ -219,6 +264,12 @@ class PageResults {
       bcCategories.Distributions.HorizontalPercents = true;
       bcCategories.Decimals = 0;
       bcCategories.HideData = true;
+
+      if(CompareUtil.isInCompareMode(context)) {
+        fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
+      } else {
+        fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
+      }
 
       if(parentHeader) {
         parentHeader.SubHeaders.Add(fav);
@@ -239,7 +290,7 @@ class PageResults {
       diff.Type = FormulaType.Expression;
       diff.Expression = 'cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row) - cellv(col+'+negScoreRecodingCols.join(', row)-cellv(col+')+',row)';
       diff.Decimals = 0;
-      diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
+      //diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
 
       //add distribution barChart
       bcCategories.RecodingIdent = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecodingId');
@@ -248,6 +299,12 @@ class PageResults {
       bcCategories.Distributions.HorizontalPercents = true;
       bcCategories.Decimals = 0;
       bcCategories.HideData = true;
+
+      if(CompareUtil.isInCompareMode(context)) {
+        diff.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
+      } else {
+        diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
+      }
 
       if(parentHeader) {
         parentHeader.SubHeaders.Add(diff);
@@ -265,8 +322,9 @@ class PageResults {
   /*
 *  add base column
 *  @param {object} context: {state: state, report: report, log: log, table: table}
+*  @param {Header} parentHeader - not mandatory
 */
-  static function addResponsesColumn(context) {
+  static function addResponsesColumn(context, parentHeader) {
 
     var table = context.table;
 
@@ -282,7 +340,11 @@ class PageResults {
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
 
-    table.ColumnHeaders.Add(responses);
+    if(parentHeader) {
+      parentHeader.SubHeaders.Add(responses);
+    } else {
+      table.ColumnHeaders.Add(responses);
+    }
   }
 
 
