@@ -24,7 +24,6 @@ class PageResults {
       totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
       totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
       TableUtil.addBreakByNestedHeader(context, totalHeader);
-      TableUtil.addBreakByNestedHeader(context, totalHeader);
       for (var i = 0; i < totalHeader.SubHeaders.Count; i++) {
         addScore(context, totalHeader.SubHeaders[i]);
         addResponsesColumn(context, totalHeader.SubHeaders[i]);
@@ -90,7 +89,6 @@ class PageResults {
         var hq : HeaderQuestion = new HeaderQuestion(qe);
         hq.ShowTotals = false;
 
-        TableUtil.addBreakByNestedHeader(context, hq);
         TableUtil.addBreakByNestedHeader(context, hq);
         for (var i = 0; i < hq.SubHeaders.Count; i++) {
           addScore(context, hq.SubHeaders[i]);
