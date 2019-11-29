@@ -213,6 +213,7 @@ class PageResults {
   static function addScore(context, parentHeader) {
 
     var table = context.table;
+    var state = context.state;
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var scoreType = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'ScoreType');
 
@@ -233,7 +234,7 @@ class PageResults {
       score.HideData = true;
       //score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
-      if(CompareUtil.isInCompareMode(context)) {
+      if(CompareUtil.isInCompareMode(context) && !(state.ReportExecutionMode === ReportExecutionMode.PdfExport || state.ReportExecutionMode === ReportExecutionMode.ExcelExport)) {
         avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
         score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Total');
       } else {
@@ -271,7 +272,7 @@ class PageResults {
       bcCategories.Decimals = 0;
       bcCategories.HideData = true;
 
-      if(CompareUtil.isInCompareMode(context)) {
+      if(CompareUtil.isInCompareMode(context) && !(state.ReportExecutionMode === ReportExecutionMode.PdfExport || state.ReportExecutionMode === ReportExecutionMode.ExcelExport)) {
         fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
       } else {
         fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
@@ -306,7 +307,7 @@ class PageResults {
       bcCategories.Decimals = 0;
       bcCategories.HideData = true;
 
-      if(CompareUtil.isInCompareMode(context)) {
+      if(CompareUtil.isInCompareMode(context) && !(state.ReportExecutionMode === ReportExecutionMode.PdfExport || state.ReportExecutionMode === ReportExecutionMode.ExcelExport)) {
         diff.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
       } else {
         diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
