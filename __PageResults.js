@@ -26,10 +26,12 @@ class PageResults {
       addScore(context, totalHeader);
       addResponsesColumn(context, totalHeader);
       table.ColumnHeaders.Add(totalHeader);
+
       tableStatements_AddColumnsInCompareMode(context);
 
       for (var i = 0; i < table.ColumnHeaders.Count; i++) {
-        TableUtil.addBreakByNestedHeader(context, table.ColumnHeaders[i]);
+        TableUtil.addBreakByNestedHeader(context, table.ColumnHeaders[i].SubHeaders[0]);
+        TableUtil.addBreakByNestedHeader(context, table.ColumnHeaders[i].SubHeaders[1]);
       }
     }
 
