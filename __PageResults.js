@@ -23,16 +23,15 @@ class PageResults {
       totalHeader.ShowTitle = true;
       totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
       totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
-      addScore(context, totalHeader);
-      addResponsesColumn(context, totalHeader);
+      TableUtil.addBreakByNestedHeader(context, totalHeader);
+      TableUtil.addBreakByNestedHeader(context, totalHeader);
+      for (var i = 0; i < totalHeader.SubHeaders.Count; i++) {
+        addScore(context, totalHeader.SubHeaders[i]);
+        addResponsesColumn(context, totalHeader.SubHeaders[i]);
+      }
       table.ColumnHeaders.Add(totalHeader);
 
       tableStatements_AddColumnsInCompareMode(context);
-
-      for (var i = 0; i < table.ColumnHeaders.Count; i++) {
-        TableUtil.addBreakByNestedHeader(context, table.ColumnHeaders[i].SubHeaders[0]);
-        TableUtil.addBreakByNestedHeader(context, table.ColumnHeaders[i].SubHeaders[1]);
-      }
     }
 
     tableStatements_AddRows(context);
@@ -91,8 +90,12 @@ class PageResults {
         var hq : HeaderQuestion = new HeaderQuestion(qe);
         hq.ShowTotals = false;
 
-        addScore(context, hq);
-        addResponsesColumn(context, hq);
+        TableUtil.addBreakByNestedHeader(context, hq);
+        TableUtil.addBreakByNestedHeader(context, hq);
+        for (var i = 0; i < hq.SubHeaders.Count; i++) {
+          addScore(context, hq.SubHeaders[i]);
+          addResponsesColumn(context, hq.SubHeaders[i]);
+        }
 
         table.ColumnHeaders.Add(hq);
       }
