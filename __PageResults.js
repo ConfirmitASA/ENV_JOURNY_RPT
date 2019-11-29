@@ -21,7 +21,13 @@ class PageResults {
       tableStatements_AddColumns(context, bannerId);
       tableStatements_ApplyConditionalFormatting(context);
     } else {
-      addScore(context);
+      var totalHeader : HeaderSegment = new HeaderSegment();
+      totalHeader.ShowTitle = true;
+      totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
+      totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
+      addScore(context, totalHeader);
+      addResponsesColumn(context, totalHeader);
+      table.ColumnHeaders.Add(totalHeader);
       tableStatements_AddColumnsInCompareMode(context);
     }
 
