@@ -293,8 +293,9 @@ class ParamUtil {
   /*
 * Adding values to single response parameter
 * @param {object} context - contains Reportal scripting state, log, report, parameter objects
+* @param {object} prefixInfo - if not undefined, contains parts of prefix for option labels
 */
-  static function LoadParameter (context) {
+  static function LoadParameter (context, prefixInfo) {
 
     var parameter = context.parameter;
     var log = context.log;
@@ -309,7 +310,9 @@ class ParamUtil {
 
       var val = new ParameterValueResponse();
       val.StringKeyValue = parameterOptions[i].Code;
-      val.StringValue = parameterOptions[i].Label;
+      val.StringValue = !prefixInfo
+          ? parameterOptions[i].Label
+          : (prefixInfo.text ? prefixInfo.text : '' + (prefixInfo.useIndex ? (i + 1) : '') + prefixInfo.connector ? prefixInfo.connector : '');
       parameter.Items.Add(val);
     }
 
