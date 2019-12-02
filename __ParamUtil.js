@@ -312,7 +312,7 @@ class ParamUtil {
       val.StringKeyValue = parameterOptions[i].Code;
       val.StringValue = !prefixInfo
           ? parameterOptions[i].Label
-          : (prefixInfo.text ? prefixInfo.text : '' + (prefixInfo.useIndex ? (i + 1) : '') + prefixInfo.connector ? prefixInfo.connector : '');
+          : ((prefixInfo.text ? prefixInfo.text : '') + (prefixInfo.useIndex ? (i + 1) : '') + (prefixInfo.connector ? prefixInfo.connector : ''));
       parameter.Items.Add(val);
     }
 
