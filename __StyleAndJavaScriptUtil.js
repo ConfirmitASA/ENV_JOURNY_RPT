@@ -136,7 +136,7 @@ class StyleAndJavaScriptUtil {
     }
 
     if (pageContext.Items['CurrentPageId'] === 'Trends') {
-      properties.push('trendQuestions: ' + JSON.stringify(ParamUtil.GetSelectedCodes(context, 'p_TrendQs')));
+      properties.push('trendQuestions: ' + JSON.stringify(ParamUtil.GetSelectedOptions(context, 'p_TrendQs')));
     }
 
     if (pageContext.Items['CurrentPageId'] === 'Categorical_') {
