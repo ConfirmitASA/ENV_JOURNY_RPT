@@ -135,6 +135,10 @@ class StyleAndJavaScriptUtil {
       properties.push('gaugeThreshold: '+JSON.stringify(DataSourceUtil.getPagePropertyValueFromConfig(context, "Page_KPI", "KPIThreshold")));
     }
 
+    if (pageContext.Items['CurrentPageId'] === 'Trends') {
+      properties.push('trendQuestions: ' + JSON.stringify(ParamUtil.GetSelectedCodes(context, 'p_TrendQs')));
+    }
+
     if (pageContext.Items['CurrentPageId'] === 'Categorical_') {
       properties.push('pieData: '+JSON.stringify(PageCategorical.getPieCollection(context)));
       properties.push('pieColors: '+JSON.stringify(Config.pieColors));
