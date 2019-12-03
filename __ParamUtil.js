@@ -315,9 +315,7 @@ class ParamUtil {
 
       var val = new ParameterValueResponse();
       val.StringKeyValue = parameterOptions[i].Code;
-      val.StringValue = !numerationPrefix
-          ? parameterOptions[i].Label
-          : ((numerationPrefix.text ? numerationPrefix.text : '') + (numerationPrefix.useIndex ? (i + 1) : '') + (numerationPrefix.connector ? numerationPrefix.connector : '') + parameterOptions[i].Label);
+      val.StringValue = parameterOptions[i].Label;
       parameter.Items.Add(val);
     }
 
@@ -376,11 +374,11 @@ class ParamUtil {
   static function modifyOptions(context, options, parameterInfo) {
 
     if(parameterInfo.isInReverseOrder) {
-      modifyOptionsOrder(context, options);
+      return modifyOptionsOrder(context, options);
     }
 
     if(parameterInfo.numerated) {
-      modifyOptionsWithNumeration(context, options);
+      return modifyOptionsWithNumeration(context, options);
     }
 
     return options;
