@@ -1,5 +1,11 @@
 class ParamUtil {
 
+  static var numerationPrefix = {
+    text: 'Q',
+    connector: ' - ',
+    useIndex: true
+  };
+
   /*
 * Object with resources (values) for parameters.
 * - propertyName: name of property (the lowest level of the path so to say) that keeps the value
@@ -26,7 +32,7 @@ class ParamUtil {
     'p_OpenTextQs':           { propertyName: 'Comments',              type: 'QuestionList', locationType: 'Page', page: 'Page_Comments'},
     'p_ScoreQs':              { propertyName: 'ScoresForComments',     type: 'QuestionList', locationType: 'Page', page: 'Page_Comments'},
     'p_TagQs':                { propertyName: 'TagsForComments',       type: 'QuestionList', locationType: 'Page', page: 'Page_Comments'},
-    'p_TrendQs':              { propertyName: 'TrendQuestions',        type: 'QuestionList', locationType: 'Page', page: 'Page_Trends'},
+    'p_TrendQs':              { propertyName: 'TrendQuestions',        type: 'QuestionList', locationType: 'Page', page: 'Page_Trends',         numerated: true},
     'p_QsToFilterBy':         { propertyName: 'KPI',                   type: 'QuestionList', locationType: 'Page', page: 'Page_KPI'},
     'p_WordcloudQs':          { propertyName: 'WordcloudQuestions',    type: 'QuestionList', locationType: 'Page', page: 'Page_Wordclouds'},
 
@@ -293,9 +299,8 @@ class ParamUtil {
   /*
 * Adding values to single response parameter
 * @param {object} context - contains Reportal scripting state, log, report, parameter objects
-* @param {object} prefixInfo - if not undefined, contains parts of prefix for option labels
 */
-  static function LoadParameter (context, prefixInfo) {
+  static function LoadParameter (context) {
 
     var parameter = context.parameter;
     var log = context.log;
@@ -310,9 +315,9 @@ class ParamUtil {
 
       var val = new ParameterValueResponse();
       val.StringKeyValue = parameterOptions[i].Code;
-      val.StringValue = !prefixInfo
+      val.StringValue = !numerationPrefix
           ? parameterOptions[i].Label
-          : ((prefixInfo.text ? prefixInfo.text : '') + (prefixInfo.useIndex ? (i + 1) : '') + (prefixInfo.connector ? prefixInfo.connector : '') + parameterOptions[i].Label);
+          : ((numerationPrefix.text ? numerationPrefix.text : '') + (numerationPrefix.useIndex ? (i + 1) : '') + (numerationPrefix.connector ? numerationPrefix.connector : '') + parameterOptions[i].Label);
       parameter.Items.Add(val);
     }
 
@@ -357,7 +362,7 @@ class ParamUtil {
     }
 
     var options = getRawOptions(context, resource, parameterInfo.type);
-    return modifyOptionsOrder(context, options, parameterInfo);
+    return modifyOptions(context, options, parameterInfo);
 
   }
 
@@ -368,19 +373,51 @@ class ParamUtil {
    *@return {Array} [{Code: code1, Label: label1}, {Code: code2, Label: label2}, ...]
    */
 
-  static function modifyOptionsOrder(context, options, parameterInfo) {
+  static function modifyOptions(context, options, parameterInfo) {
 
     if(parameterInfo.isInReverseOrder) {
+      modifyOptionsOrder(context, options);
+    }
 
+    if(parameterInfo.numerated) {
+      modifyOptionsWithNumeration(context, options);
+    }
+
+    return options;
+  }
+
+  /**
+   *@param {Object} context
+   *@param {Array} array of options [{Code: code1, Label: label1}, {Code: code2, Label: label2}, ...]
+   *@return {Array} [{Code: code1, Label: label1}, {Code: code2, Label: label2}, ...]
+   */
+
+  static function modifyOptionsOrder(context, options) {
       var reversed = [];
       for(var i=options.length-1; i>=0; i--) {
         reversed.push(options[i]);
       }
 
       return reversed;
+  }
+
+  /**
+   *@param {Object} context
+   *@param {Array} array of options [{Code: code1, Label: label1}, {Code: code2, Label: label2}, ...]
+   *@return {Array} [{Code: code1, Label: label1}, {Code: code2, Label: label2}, ...]
+   */
+
+  static function modifyOptionsWithNumeration(context, options) {
+    var numerated = [];
+    for(var i=0; i<options.length; i++) {
+      var numeratedOptionLabel = !numerationPrefix
+          ? options[i].Label
+          : ((numerationPrefix.text ? numerationPrefix.text : '') + (numerationPrefix.useIndex ? (i + 1) : '') + (numerationPrefix.connector ? numerationPrefix.connector : '') + options[i].Label);
+      options[i].Label = numeratedOptionLabel;
+      numerated.push(options[i]);
     }
 
-    return options;
+    return numerated;
   }
 
 
