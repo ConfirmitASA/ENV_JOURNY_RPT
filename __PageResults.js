@@ -18,9 +18,15 @@ class PageResults {
     if(!CompareUtil.isInCompareMode(context)) {
       tableStatements_AddColumns(context, bannerId);
       tableStatements_ApplyConditionalFormatting(context);
+
+      table.RemoveEmptyHeaders.Rows = true;
+      table.RemoveEmptyHeaders.Columns = true;
+      
     } else {
       
       suppressSettings.type = 'row'; //in compare mode we use different direction
+      table.RemoveEmptyHeaders.Rows = true;
+      table.RemoveEmptyHeaders.Columns = false;
       
       var totalHeader : HeaderSegment = new HeaderSegment();
       totalHeader.ShowTitle = true;
@@ -46,8 +52,6 @@ class PageResults {
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
-    table.RemoveEmptyHeaders.Rows = true;
-    table.RemoveEmptyHeaders.Columns = true;
     table.Caching.Enabled = false;
 
   }
