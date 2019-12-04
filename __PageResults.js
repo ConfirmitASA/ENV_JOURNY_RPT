@@ -19,6 +19,9 @@ class PageResults {
       tableStatements_AddColumns(context, bannerId);
       tableStatements_ApplyConditionalFormatting(context);
     } else {
+      
+      suppressSettings.type = 'row'; //in compare mode we use different direction
+      
       var totalHeader : HeaderSegment = new HeaderSegment();
       totalHeader.ShowTitle = true;
       totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
