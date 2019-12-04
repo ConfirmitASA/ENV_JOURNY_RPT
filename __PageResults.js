@@ -44,7 +44,7 @@ class PageResults {
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
     table.RemoveEmptyHeaders.Rows = true;
-    table.RemoveEmptyHeaders.Columns = false; //setting it to 'true' causes removing of one of Responses columns for quarters
+    table.RemoveEmptyHeaders.Columns = true;
     table.Caching.Enabled = false;
 
   }
