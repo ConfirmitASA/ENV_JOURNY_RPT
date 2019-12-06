@@ -1,4 +1,4 @@
-class PageCategorical1 {
+class PageCategorical {
 
     /**
      * @memberof PageCategorical
