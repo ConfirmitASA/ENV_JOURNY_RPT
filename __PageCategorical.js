@@ -485,10 +485,10 @@ class PageCategorical {
 
         // global table settings
         table.RemoveEmptyHeaders.Rows = true;
-        table.Sorting.Rows.SortByType = TableSortByType.Position;
+        /*table.Sorting.Rows.SortByType = TableSortByType.Position; // JOU-100
         table.Sorting.Rows.Position = 2;
         table.Sorting.Rows.Direction = TableSortDirection.Descending;
-        table.Sorting.Rows.Enabled = true;
+        table.Sorting.Rows.Enabled = true;*/
         table.RowNesting = TableRowNestingType.Nesting;
         SuppressUtil.setTableSuppress(table, suppressSettings);
     }
