@@ -1,4 +1,4 @@
-class PageCategorical {
+class PageCategorical1 {
 
     /**
      * @memberof PageCategorical
@@ -365,22 +365,22 @@ class PageCategorical {
     static function tableDrilldown_Hide(context) {
         var state = context.state;
         var log = context.log;
-      
-        var isDrilledDown = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown');        
-        if (isDrilledDown) {         
-          var drillDownQId = state.Parameters.GetString('p_Drilldown').split(":")[1];    
-          var lists = getTopListCollection(context);
-          for (var i = 0; i < lists.length; i++) {
-            var item = lists[i];    
-            if(drillDownQId == item.qid) {
-               if(item.result.length == 0) {
-                   return true; // when no data for the drilled down question (the 30 answers rule is not fulfilled), we hide the Drilldown table
-               } else {
-                   break;       // when we have data, check other conditions
-               }  
-            }   
-          }
-        }      
+
+        var isDrilledDown = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown');
+        if (isDrilledDown) {
+            var drillDownQId = state.Parameters.GetString('p_Drilldown').split(":")[1];
+            var lists = getTopListCollection(context);
+            for (var i = 0; i < lists.length; i++) {
+                var item = lists[i];
+                if(drillDownQId == item.qid) {
+                    if(item.result.length == 0) {
+                        return true; // when no data for the drilled down question (the 30 answers rule is not fulfilled), we hide the Drilldown table
+                    } else {
+                        break;       // when we have data, check other conditions
+                    }
+                }
+            }
+        }
         var isExcel = state.ReportExecutionMode == ReportExecutionMode.ExcelExport;
         return isExcel || !isDrilledDown || SuppressUtil.isGloballyHidden(context);
     }
@@ -393,7 +393,7 @@ class PageCategorical {
      * @param {Object} context - {table: table, report: report, user: user, state: state, confirmit: confirmit, log: log, suppressSettings: suppressSettings}
      */
 
-    static function tableDrilldown_Render(context){
+    static function tableDrilldown_Render(context) {
 
         var report = context.report;
         var state = context.state;
@@ -413,14 +413,38 @@ class PageCategorical {
         row.IsCollapsed = (question.QuestionType === QuestionType.Single) ? false : true;
         row.ShowTitle = false;
         row.ShowTotals = false;
-        TableUtil.addBreakByNestedHeader(context, row);
-        table.RowHeaders.Add(row);
 
+        //TableUtil.addBreakByNestedHeader(context, row); //old implementation before change of nesting
 
+        // Break By option is selected
+        if (!state.Parameters.IsNull('p_CatDD_TimeUnitNoDefault')) {
+            var timeUnits = ParamUtil.GetSelectedOptions (context, 'p_CatDD_TimeUnitNoDefault');
+            if (timeUnits.length && timeUnits[0].TimeUnit) {  // check if time unit for breakdown is specified in TextAndParameterLibrary->ParameterValuesLibrary
+                var timeUnit = timeUnits[0];
+                // add trending by a date variable passed as a parameter
+                var dateQId = DataSourceUtil.getSurveyPropertyValueFromConfig (context, 'DateQuestion');
+                var dateQe: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, dateQId);
+                var timeQuestionHeader: HeaderQuestion = new HeaderQuestion(dateQe);
+                TableUtil.setTimeSeriesByTimeUnit(context, timeQuestionHeader, timeUnit);
 
+                // set rolling if time unit count is specified in TextAndParameterLibrary->ParameterValuesLibrary
+                if (timeUnit.TimeUnitCount != null) {
+                    TableUtil.setRollingByTimeUnit(context, timeQuestionHeader, timeUnit);
+                }
+                timeQuestionHeader.TimeSeries.FlatLayout = true;
+                timeQuestionHeader.ShowTotals = false;
+                timeQuestionHeader.HideData = false;
+                timeQuestionHeader.HideHeader = false;
+
+                timeQuestionHeader.SubHeaders.Add(row);
+                table.RowHeaders.Add(timeQuestionHeader);
+            }
+
+        } else {  // Break By option is not selected
+            table.RowHeaders.Add(row);
+        }
 
         // add columns = bar chart, Count and VP
-
         var barChartColors = Config.barChartColors_Categorical;
         var barChart: HeaderChartCombo = new HeaderChartCombo();
         var chartValue: ChartComboValue = new ChartComboValue();
@@ -469,7 +493,6 @@ class PageCategorical {
         SuppressUtil.setTableSuppress(table, suppressSettings);
     }
 
-
     /**
      * @memberof PageCategorical
      * @function tableDrilldownTitle_Hide
@@ -479,7 +502,7 @@ class PageCategorical {
      */
     static function tableDrilldownTitle_Hide(context) {
         var state = context.state;
-        var isDrilledDown = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown');    
+        var isDrilledDown = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown');
         return !isDrilledDown || SuppressUtil.isGloballyHidden(context);
     }
 
