@@ -395,7 +395,6 @@ class PageCategorical {
 
     static function tableDrilldown_Render(context) {
 
-        var report = context.report;
         var state = context.state;
         var log = context.log;
         var table = context.table;
@@ -414,7 +413,7 @@ class PageCategorical {
         row.ShowTitle = false;
         row.ShowTotals = false;
 
-        //TableUtil.addBreakByNestedHeader(context, row); //old implementation before change of nesting
+        //TableUtil.addBreakByNestedHeader(context, row); //old implementation before change of nesting JOU-96
 
         // Break By option is selected
         if (!state.Parameters.IsNull('p_CatDD_TimeUnitNoDefault')) {
@@ -463,7 +462,7 @@ class PageCategorical {
         var hbCount : HeaderBase = new HeaderBase();
         hbCount.Distributions.Enabled = true;
         hbCount.Distributions.Count = true;
-        hbCount.Distributions.UseInnermostTotals = true;
+        //hbCount.Distributions.UseInnermostTotals = true;
         hbCount.HideHeader = true;
 
         var hbVP : HeaderBase = new HeaderBase();
@@ -484,7 +483,7 @@ class PageCategorical {
         table.ColumnHeaders.Add(hcVP);
 
         // global table settings
-        table.RemoveEmptyHeaders.Rows = true;
+        //table.RemoveEmptyHeaders.Rows = true;
         /*table.Sorting.Rows.SortByType = TableSortByType.Position; // JOU-100
         table.Sorting.Rows.Position = 2;
         table.Sorting.Rows.Direction = TableSortDirection.Descending;
