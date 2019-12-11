@@ -17,7 +17,6 @@ class PageResults {
 
     if(!CompareUtil.isInCompareMode(context)) {
       tableStatements_AddColumns(context, bannerId);
-      tableStatements_ApplyConditionalFormatting(context);
 
       table.RemoveEmptyHeaders.Rows = true;
       table.RemoveEmptyHeaders.Columns = true;
@@ -39,6 +38,8 @@ class PageResults {
 
     tableStatements_AddRows(context);
     SuppressUtil.setTableSuppress(table, suppressSettings);
+
+    tableStatements_ApplyConditionalFormatting(context);
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
@@ -539,19 +540,23 @@ class PageResults {
     var table = context.table;
     var log = context.log;
 
-    // Score column is bold and has bigger font-size
-    var area: Area = new Area();
-    var condition: Condition = new Condition();
-    condition.Expression = 'true';
-    condition.Style = 'score-column cf-score-column';
+    if(!CompareUtil.isInCompareMode(context)) {
+      // Score column is bold and has bigger font-size
+      var area: Area = new Area();
+      var condition: Condition = new Condition();
+      condition.Expression = 'true';
+      condition.Style = 'score-column cf-score-column';
 
-    area.Name = 'Score';
-    area.FromStart = true;
-    area.Indexes = '1';
-    area.RowFormatting = false;
-    area.AddCondition(condition);
+      area.Name = 'Score';
+      area.FromStart = true;
+      area.Indexes = '1';
+      area.RowFormatting = false;
+      area.AddCondition(condition);
 
-    table.ConditionalFormatting.AddArea(area);
+      table.ConditionalFormatting.AddArea(area);
+    } else {
+      CondFormatUtil.applyConditionalFormatting(context, 'set1');
+    }
   }
 
 
