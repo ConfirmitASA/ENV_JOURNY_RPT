@@ -91,7 +91,7 @@ class PageResults {
         var hq : HeaderQuestion = new HeaderQuestion(qe);
         hq.ShowTotals = false;
 
-        tableStatements_AddNestedCompareColumn(context, qe);
+        tableStatements_AddNestedCompareColumn(context, hq);
       }
     } else {
       throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
