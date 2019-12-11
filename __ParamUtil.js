@@ -1,7 +1,7 @@
 class ParamUtil {
 
   static var numerationPrefix = {
-    text: 'Q',
+    text: 'Question',
     connector: ' - ',
     useIndex: true
   };

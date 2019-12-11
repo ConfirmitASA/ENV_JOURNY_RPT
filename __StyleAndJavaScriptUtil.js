@@ -123,6 +123,8 @@ class StyleAndJavaScriptUtil {
 
     properties.push('translations:'+ JSON.stringify(generateTranslationsObject (context)));
 
+    properties.push('numerationPrefix:'+ JSON.stringify(ParamUtil.numerationPrefix));
+
     if (pageContext.Items['CurrentPageId'] === 'Comments') {
       properties.push('tagColumnNumbers: '+JSON.stringify(PageComments.getTagColumnNumbers (context)));
       properties.push('nonTagColumnsCount: '+JSON.stringify(PageComments.getNonTagColumnsCount (context)));
