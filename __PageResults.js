@@ -32,17 +32,7 @@ class PageResults {
       totalHeader.ShowTitle = true;
       totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
       totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
-      TableUtil.addBreakByNestedHeader(context, totalHeader);
-      if (totalHeader.SubHeaders.Count > 0) {
-        for (var i = 0; i < totalHeader.SubHeaders.Count; i++) {
-          addScore(context, totalHeader.SubHeaders[i]);
-          addResponsesColumn(context, totalHeader.SubHeaders[i]);
-        }
-      } else {
-        addScore(context, totalHeader);
-        addResponsesColumn(context, totalHeader);
-      }
-      table.ColumnHeaders.Add(totalHeader);
+      tableStatements_AddNestedCompareColumn(context, totalHeader);
 
       tableStatements_AddColumnsInCompareMode(context);
     }
@@ -101,24 +91,37 @@ class PageResults {
         var hq : HeaderQuestion = new HeaderQuestion(qe);
         hq.ShowTotals = false;
 
-        TableUtil.addBreakByNestedHeader(context, hq);
-        if (hq.SubHeaders.Count > 0) {
-          for (var i = 0; i < hq.SubHeaders.Count; i++) {
-            addScore(context, hq.SubHeaders[i]);
-            addResponsesColumn(context, hq.SubHeaders[i]);
-          }
-        } else {
-          addScore(context, hq);
-          addResponsesColumn(context, hq);
-        }
-
-        table.ColumnHeaders.Add(hq);
+        tableStatements_AddNestedCompareColumn(context, qe);
       }
     } else {
       throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
     }
 
     //log.LogDebug(compareModeQs);
+  }
+
+
+  /*
+* add one column with nested header of Compare type
+* @param {object} context: {state: state, report: report, log: log, table: table}
+* @param {Header} header - parent header
+*/
+  static function tableStatements_AddNestedCompareColumn(context, header) {
+    var log = context.log;
+    var table = context.table;
+
+    TableUtil.addBreakByNestedHeader(context, header);
+    if (header.SubHeaders.Count > 0) {
+      for (var i = 0; i < header.SubHeaders.Count; i++) {
+        addScore(context, header.SubHeaders[i]);
+        addResponsesColumn(context, header.SubHeaders[i]);
+      }
+    } else {
+      addScore(context, header);
+      addResponsesColumn(context, header);
+    }
+
+    table.ColumnHeaders.Add(header);
   }
 
   /*
