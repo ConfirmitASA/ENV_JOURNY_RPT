@@ -114,11 +114,13 @@ class PageResults {
     TableUtil.addBreakByNestedHeader(context, header);
     if (header.SubHeaders.Count > 0) {
       for (var i = 0; i < header.SubHeaders.Count; i++) {
-        addScore(context, header.SubHeaders[i]);
+        //addScore(context, header.SubHeaders[i]);
+        addResponsesColumn(context, header.SubHeaders[i], true);
         addResponsesColumn(context, header.SubHeaders[i]);
       }
     } else {
-      addScore(context, header);
+      //addScore(context, header);
+      addResponsesColumn(context, header.SubHeaders[i], true);
       addResponsesColumn(context, header);
     }
 
@@ -363,8 +365,9 @@ class PageResults {
 *  add base column
 *  @param {object} context: {state: state, report: report, log: log, table: table}
 *  @param {Header} parentHeader - not mandatory
+*  @param {Header} withPercents - not mandatory
 */
-  static function addResponsesColumn(context, parentHeader) {
+  static function addResponsesColumn(context, parentHeader, withPercents) {
 
     var table = context.table;
 
@@ -376,6 +379,10 @@ class PageResults {
     catForNAMask.HideHeader = true;
     catForNAMask.Mask.Type = MaskType.ShowCodes;
     catForNAMask.Mask.Codes = ''; // do not show any codes but Total
+
+    catForNAMask.Distributions.Enabled = withPercents;
+    catForNAMask.Distributions.VerticalPercents = withPercents;
+
     responses.SubHeaders.Add(catForNAMask);
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
