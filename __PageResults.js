@@ -120,7 +120,7 @@ class PageResults {
       }
     } else {
       //addScore(context, header);
-      addResponsesColumn(context, header.SubHeaders[i], true);
+      addResponsesColumn(context, header, true);
       addResponsesColumn(context, header);
     }
 
