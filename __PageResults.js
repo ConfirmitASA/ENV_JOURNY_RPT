@@ -380,12 +380,13 @@ class PageResults {
     catForNAMask.Mask.Type = MaskType.ShowCodes;
     catForNAMask.Mask.Codes = ''; // do not show any codes but Total
 
-    catForNAMask.Distributions.Enabled = withPercents;
-    catForNAMask.Distributions.VerticalPercents = withPercents;
-
     responses.SubHeaders.Add(catForNAMask);
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
+
+    responses.Distributions.Enabled = withPercents;
+    responses.Distributions.VerticalPercents = withPercents;
+    responses.Distributions.UseInnermostTotals = false;
 
     if(parentHeader) {
       parentHeader.SubHeaders.Add(responses);
