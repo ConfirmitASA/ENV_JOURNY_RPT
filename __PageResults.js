@@ -381,7 +381,7 @@ class PageResults {
     catForNAMask.Mask.Codes = ''; // do not show any codes but Total
 
     catForNAMask.Distributions.Enabled = withPercents;
-    catForNAMask.Distributions.VerticalPercents = withPercents;
+    catForNAMask.Distributions.HorizontalPercents = withPercents;
     catForNAMask.Distributions.UseInnermostTotals = false;
 
     responses.SubHeaders.Add(catForNAMask);
