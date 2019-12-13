@@ -208,6 +208,8 @@ class PageResults {
       categorization.Collapsed = false;
       categorization.Totals = true;
 
+      TableUtil.maskOutNA(context, categorization); // exclude NA code
+
       if (!CompareUtil.isInCompareMode(context)) {
         TableUtil.addBreakByNestedHeader(context, categorization);
       }
@@ -365,7 +367,7 @@ class PageResults {
 *  add base column
 *  @param {object} context: {state: state, report: report, log: log, table: table}
 *  @param {Header} parentHeader - not mandatory
-*  @param {Header} withPercents - not mandatory
+*  @param {boolean} withPercents - not mandatory
 */
   static function addResponsesColumn(context, parentHeader, withPercents) {
 
@@ -375,7 +377,6 @@ class PageResults {
     var responses: HeaderSegment = new HeaderSegment();
     var catForNAMask: HeaderCategories = new HeaderCategories(); // a way to exclude NA from base calculation
 
-    TableUtil.maskOutNA(context, catForNAMask); // exclude NA code
     catForNAMask.HideHeader = true;
     catForNAMask.Mask.Type = MaskType.ShowCodes;
     catForNAMask.Mask.Codes = ''; // do not show any codes but Total
