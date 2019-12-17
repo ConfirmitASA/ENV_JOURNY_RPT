@@ -223,7 +223,7 @@ class TableUtil{
             }
 
             if (!(breakByTimeUnits || (breakVariables && breakVariables.length > 0))) { // none of break by values set in config
-                return;
+                return null;
             }
             //TO DO: get rid of explicit page names
             if (breakByTimeUnits && pageId === 'Page_Results') {
@@ -251,7 +251,7 @@ class TableUtil{
         var selectedOption = selectedOptions[0];
 
         if(selectedOption==null || selectedOption.Code === 'na') {//no break by option is selected
-            return;
+            return null;
         }
 
         if(breakByType === 'TimeUnit') { // break by time unit
@@ -276,7 +276,7 @@ class TableUtil{
             TableUtil.applyDateRangeFilterToHeader(context, nestedHeader);
             parentHeader.SubHeaders.Add(nestedHeader);
 
-            return;
+            return nestedHeader;
         }
 
         if(breakByType === 'Question') { // break by question
@@ -295,7 +295,7 @@ class TableUtil{
             nestedHeader.ShowTotals = false;
             parentHeader.SubHeaders.Add(nestedHeader);
 
-            return;
+            return nestedHeader;
         }
 
         if(breakByType === 'Answer') { // break by question's answer
@@ -329,7 +329,7 @@ class TableUtil{
 
             parentHeader.SubHeaders.Add(nestedHeader);
 
-            return;
+            return nestedHeader;
         }
     }
 
