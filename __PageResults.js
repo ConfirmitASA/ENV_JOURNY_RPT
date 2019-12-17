@@ -1,4 +1,4 @@
-class PageResults {
+class PageResults2 {
 
 
   /*
@@ -17,16 +17,9 @@ class PageResults {
 
     if(!CompareUtil.isInCompareMode(context)) {
       tableStatements_AddColumns(context, bannerId);
-
-      table.RemoveEmptyHeaders.Rows = true;
-      table.RemoveEmptyHeaders.Columns = true;
-      
     } else {
-      
       suppressSettings.type = 'row'; //in compare mode we use different direction
-      table.RemoveEmptyHeaders.Rows = true;
-      table.RemoveEmptyHeaders.Columns = false;
-      
+
       var totalHeader : HeaderSegment = new HeaderSegment();
       totalHeader.ShowTitle = true;
       totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
@@ -40,6 +33,9 @@ class PageResults {
     SuppressUtil.setTableSuppress(table, suppressSettings);
 
     tableStatements_ApplyConditionalFormatting(context);
+
+    table.RemoveEmptyHeaders.Rows = true;
+    table.RemoveEmptyHeaders.Columns = false;
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
@@ -111,16 +107,21 @@ class PageResults {
     var log = context.log;
     var table = context.table;
 
+    var recodingInfo = {
+      id: 'rec4',
+      codes: '1'
+    };
+
     TableUtil.addBreakByNestedHeader(context, header);
     if (header.SubHeaders.Count > 0) {
       for (var i = 0; i < header.SubHeaders.Count; i++) {
         //addScore(context, header.SubHeaders[i]);
-        addResponsesColumn(context, header.SubHeaders[i], true);
+        addResponsesColumn(context, header.SubHeaders[i], true, recodingInfo);
         addResponsesColumn(context, header.SubHeaders[i]);
       }
     } else {
       //addScore(context, header);
-      addResponsesColumn(context, header, true);
+      addResponsesColumn(context, header, true, recodingInfo);
       addResponsesColumn(context, header);
     }
 
@@ -135,6 +136,7 @@ class PageResults {
   static function tableStatements_AddRows(context) {
 
     var log = context.log;
+    var table = context.table;
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var resultStatements = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'ResultStatements');
     var dimensions = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'Dimensions');
@@ -142,6 +144,14 @@ class PageResults {
     if(resultStatements && resultStatements.length>0 && dimensions && dimensions.length>0) {
       throw new Error('PageResults.tableStatements_AddRows: One of Config properties for page "Results" ResultStatements and Dimensions should be null or [].');
     }
+
+    // this fixes break by recoding for categorizations in rows
+    var helpQuestionQE: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, 'status');
+    var helpQuestionHQ: HeaderQuestion = new HeaderQuestion(helpQuestionQE);
+    helpQuestionHQ.HideData = true;
+    helpQuestionHQ.HideHeader = true;
+    helpQuestionHQ.IsCollapsed = true;
+    table.RowHeaders.Add(helpQuestionHQ);
 
     if(resultStatements && resultStatements.length>0) {
       tableStatements_AddRows_Banner0(context);
@@ -208,7 +218,7 @@ class PageResults {
       categorization.Collapsed = false;
       categorization.Totals = true;
 
-      TableUtil.maskOutNA(context, categorization); // exclude NA code
+      //TableUtil.maskOutNA(context, categorization); // exclude NA code
 
       if (!CompareUtil.isInCompareMode(context)) {
         TableUtil.addBreakByNestedHeader(context, categorization);
@@ -263,7 +273,7 @@ class PageResults {
       avg.Type = FormulaType.Expression;
       avg.Expression = 'cellv(col+1, row)';
       avg.Decimals = 0;
-     // avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
+      // avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
       var score: HeaderStatistics = new HeaderStatistics();
       score.Decimals = 0;
@@ -368,24 +378,36 @@ class PageResults {
 *  @param {object} context: {state: state, report: report, log: log, table: table}
 *  @param {Header} parentHeader - not mandatory
 *  @param {boolean} withPercents - not mandatory
+*  @param {object} recodingInfo - not mandatory, should be used in HeaderCategories instead of showing just Total
 */
-  static function addResponsesColumn(context, parentHeader, withPercents) {
+  static function addResponsesColumn(context, parentHeader, withPercents, recodingInfo) {
 
     var table = context.table;
 
     // add Responses Column
     var responses: HeaderSegment = new HeaderSegment();
-    var catForNAMask: HeaderCategories = new HeaderCategories(); // a way to exclude NA from base calculation
+    var catForMask: HeaderCategories = new HeaderCategories();
 
-    catForNAMask.HideHeader = true;
-    catForNAMask.Mask.Type = MaskType.ShowCodes;
-    catForNAMask.Mask.Codes = ''; // do not show any codes but Total
+    catForMask.HideHeader = true;
 
-    catForNAMask.Distributions.Enabled = withPercents;
-    catForNAMask.Distributions.HorizontalPercents = withPercents;
-    catForNAMask.Distributions.UseInnermostTotals = false;
+    if (!recodingInfo) {
+      catForMask.Mask.Type = MaskType.ShowCodes;
+      catForMask.Mask.Codes = ''; // do not show any codes but Total
+    } else {
+      catForMask.RecodingIdent = recodingInfo.id;
+      catForMask.RecodingShowOriginal = false;
+      var mask: GenericCodeMask = new GenericCodeMask();
+      mask.Codes = recodingInfo.codes;
+      mask.Type = MaskType.ShowCodes;
+      catForMask.Mask = mask;
+      catForMask.Totals = false;
+    }
 
-    responses.SubHeaders.Add(catForNAMask);
+    catForMask.Distributions.Enabled = withPercents;
+    catForMask.Distributions.HorizontalPercents = withPercents;
+    catForMask.Distributions.UseInnermostTotals = false;
+
+    responses.SubHeaders.Add(catForMask);
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
 
