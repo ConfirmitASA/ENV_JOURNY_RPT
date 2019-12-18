@@ -3,7 +3,7 @@ class Filters {
   /**
    * not hierarchy, to exclude it from filters, not to add user to context - painful
    */
-  static function static excludeReportBaseFilter(context, filterList) {
+  static function excludeReportBaseFilter(context, filterList) {
 
     var pageContext = context.pageContext;
     var persFilterExpr = pageContext.Items['PersonalizedFilterExpression'];
