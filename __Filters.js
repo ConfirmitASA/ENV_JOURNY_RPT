@@ -15,7 +15,7 @@ class Filters {
     }
 
     //list empty or no expression for the user
-    if(reportBaseQids.length === 0 || !!persFilterExpr) {
+    if(reportBaseQids.length === 0 || !persFilterExpr) {
       return filterList;
     }
 
