@@ -6,7 +6,6 @@ class PageResults {
 * @param {object} context: {state: state, report: report, log: log, table: table, pageContext: pageContext, suppressSettings: suppressSettings}
 * @param {string} bannerId: explicit bannerId to use, not mandotary
 */
-
   static function tableStatements_Render(context, bannerId) {
 
     var state = context.state;
@@ -15,22 +14,9 @@ class PageResults {
     var suppressSettings = context.suppressSettings;
 
 
-    if(!CompareUtil.isInCompareMode(context)) {
-      tableStatements_AddColumns(context, bannerId);
-    } else {
-      suppressSettings.type = 'row'; //in compare mode we use different direction
-
-      var totalHeader : HeaderSegment = new HeaderSegment();
-      totalHeader.ShowTitle = true;
-      totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
-      totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
-      tableStatements_AddNestedCompareColumn(context, totalHeader);
-
-      tableStatements_AddColumnsInCompareMode(context);
-    }
-
+    tableStatements_AddColumns(context, bannerId);
     tableStatements_AddRows(context);
-    SuppressUtil.setTableSuppress(table, suppressSettings);
+    setSuppress(context, table, suppressSettings);
 
     tableStatements_ApplyConditionalFormatting(context);
 
@@ -43,13 +29,24 @@ class PageResults {
 
   }
 
+  /**
+   * define table suppress settings here
+   */
+  static function setSuppress(context, table, suppressSettings) {
+
+    SuppressUtil.setTableSuppress(table, suppressSettings);
+
+    if(CompareUtil.isInCompareMode(context)) {
+      suppressSettings.type = 'row'; //in compare mode we use different direction
+    }
+
+  }
+
   /*
 * Hide Statements table because of suppress
 * @param {object} context: {state: state, report: report, log: log, table: table}
 */
-
   static function tableStatements_Hide(context) {
-
     return SuppressUtil.isGloballyHidden(context);
   }
 
@@ -59,73 +56,17 @@ class PageResults {
 * @param {object} context: {state: state, report: report, log: log, table: table}
 * @param {string} bannerId: explicit bannerId to use, not mandatory
 */
-
   static function tableStatements_AddColumns(context, bannerId) {
 
     var log = context.log;
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
-    tableStatements_AddColumns_Banner0(context); // default set
+    if(CompareUtil.isInCompareMode(context)) {
+      tableStatements_AddColumnsInCompareMode(context);
+    } else {
+      tableStatements_AddColumns_Banner0(context);
+    }
     return;
-
-  }
-
-
-  /*
-* add columns in Compare mode
-* @param {object} context: {state: state, report: report, log: log, table: table}
-*/
-  static function tableStatements_AddColumnsInCompareMode(context) {
-    var log = context.log;
-    var table = context.table;
-
-    var pageId = PageUtil.getCurrentPageIdInConfig(context);
-    var compareModeQs = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'CompareModeColumnVariables');
-
-    if(compareModeQs.length > 0) {
-      for(var i = 0; i < compareModeQs.length; i++) {
-        var qe : QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, compareModeQs[i]);
-        var hq : HeaderQuestion = new HeaderQuestion(qe);
-        hq.ShowTotals = false;
-
-        tableStatements_AddNestedCompareColumn(context, hq);
-      }
-    } else {
-      throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
-    }
-
-    //log.LogDebug(compareModeQs);
-  }
-
-
-  /*
-* add one column with nested header of Compare type
-* @param {object} context: {state: state, report: report, log: log, table: table}
-* @param {Header} header - parent header
-*/
-  static function tableStatements_AddNestedCompareColumn(context, header) {
-    var log = context.log;
-    var table = context.table;
-
-    var recodingInfo = {
-      id: 'rec4',
-      codes: '1'
-    };
-
-    TableUtil.addBreakByNestedHeader(context, header);
-    if (header.SubHeaders.Count > 0) {
-      for (var i = 0; i < header.SubHeaders.Count; i++) {
-        //addScore(context, header.SubHeaders[i]);
-        addResponsesColumn(context, header.SubHeaders[i], true, recodingInfo);
-        addResponsesColumn(context, header.SubHeaders[i]);
-      }
-    } else {
-      //addScore(context, header);
-      addResponsesColumn(context, header, true, recodingInfo);
-      addResponsesColumn(context, header);
-    }
-
-    table.ColumnHeaders.Add(header);
   }
 
   /*
@@ -144,14 +85,6 @@ class PageResults {
     if(resultStatements && resultStatements.length>0 && dimensions && dimensions.length>0) {
       throw new Error('PageResults.tableStatements_AddRows: One of Config properties for page "Results" ResultStatements and Dimensions should be null or [].');
     }
-
-    // this fixes break by recoding for categorizations in rows
-    var helpQuestionQE: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, 'status');
-    var helpQuestionHQ: HeaderQuestion = new HeaderQuestion(helpQuestionQE);
-    helpQuestionHQ.HideData = true;
-    helpQuestionHQ.HideHeader = true;
-    helpQuestionHQ.IsCollapsed = true;
-    table.RowHeaders.Add(helpQuestionHQ);
 
     if(resultStatements && resultStatements.length>0) {
       tableStatements_AddRows_Banner0(context);
@@ -204,6 +137,14 @@ class PageResults {
     var log = context.log;
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
+    // this fixes break by recoding for categorizations in rows
+    var helpQuestionQE: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, 'status');
+    var helpQuestionHQ: HeaderQuestion = new HeaderQuestion(helpQuestionQE);
+    helpQuestionHQ.HideData = true;
+    helpQuestionHQ.HideHeader = true;
+    helpQuestionHQ.IsCollapsed = true;
+    table.RowHeaders.Add(helpQuestionHQ);
+
     var categorizations = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'Dimensions');
 
     for (var i=0; i<categorizations.length; i++) {
@@ -235,7 +176,6 @@ class PageResults {
 * @param {object} context: {state: state, report: report, log: log, table: table}
 * @param {string} scoreType
 */
-
   static function tableStatements_AddColumns_Banner0(context) {
 
     var log = context.log;
@@ -389,23 +329,11 @@ class PageResults {
     var catForMask: HeaderCategories = new HeaderCategories();
 
     catForMask.HideHeader = true;
+    TableUtil.maskOutNA(context, catForMask);
 
-    if (!recodingInfo) {
-      catForMask.Mask.Type = MaskType.ShowCodes;
-      catForMask.Mask.Codes = ''; // do not show any codes but Total
-    } else {
-      catForMask.RecodingIdent = recodingInfo.id;
-      catForMask.RecodingShowOriginal = false;
-      var mask: GenericCodeMask = new GenericCodeMask();
-      mask.Codes = recodingInfo.codes;
-      mask.Type = MaskType.ShowCodes;
-      catForMask.Mask = mask;
-      catForMask.Totals = false;
-    }
+    catForMask.Mask.Type = MaskType.ShowCodes;
+    catForMask.Mask.Codes = ''; // do not show any codes but Total
 
-    catForMask.Distributions.Enabled = withPercents;
-    catForMask.Distributions.HorizontalPercents = withPercents;
-    catForMask.Distributions.UseInnermostTotals = false;
 
     responses.SubHeaders.Add(catForMask);
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
@@ -615,13 +543,129 @@ class PageResults {
     return;
   }
 
-  //-----------------------------------------------------------------------------------------------
+
+  // ---------------------------------- COMPARE START ----------------------------------
+
+  /**
+   * add columns in Compare mode
+   * @param {object} context: {state: state, report: report, log: log, table: table}
+   */
+  static function tableStatements_AddColumnsInCompareMode(context) {
+
+    var log = context.log;
+    var table = context.table;
+    var pageId = PageUtil.getCurrentPageIdInConfig(context);
+    var compareModeQs = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'CompareModeColumnVariables');
+
+    var totalHeader : HeaderSegment = new HeaderSegment();
+    totalHeader.ShowTitle = true;
+    totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
+    totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
+    addOneCompareHeader(context, totalHeader);
+
+    if(compareModeQs.length <= 0) {
+      throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
+    }
+
+    for(var i = 0; i < compareModeQs.length; i++) { //loop by column questions
+      var qe : QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, compareModeQs[i]);
+      var hq : HeaderQuestion = new HeaderQuestion(qe);
+      hq.ShowTotals = false;
+      addOneCompareHeader(context, hq);
+    }
+
+    //log.LogDebug(compareModeQs);
+  }
+
+  /**
+   creates needed nesting for compare table
+   */
+  static function addOneCompareHeader(context, header) {
+
+    var log = context.log;
+
+    var breakByH = TableUtil.addBreakByNestedHeader(context, header); //INTERVIEW_END: add break by based on time period break by parameter
+
+    var cat = addDistributionBreakBy_ForCompare(context, breakByH); //CATEGORY: instead of filtering add break by distribution - temp
+    if (breakByH) {
+      breakByH.SubHeaders.Add(cat);
+    } else {
+      header.SubHeaders.Add(cat);
+    }
+
+    var hp = addBase_ForCompare(context, true, true); //SEGMENT + HP
+    var count = addBase_ForCompare(context); //COUNT
+    cat.SubHeaders.Add(hp);
+    cat.SubHeaders.Add(count);
+
+    context.table.ColumnHeaders.Add(header);
+  }
+
+  /*
+* add one column with nested header of Compare type
+* @param {object} context: {state: state, report: report, log: log, table: table}
+*/
+  static function addDistributionBreakBy_ForCompare(context) {
+
+    var log = context.log;
+    // temp until it is clear what compare filtering really is
+    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_ScriptedFCompareParameter1").join(',');
+    var recId = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'DistributionRecodingId');
+    var catForMask: HeaderCategories = new HeaderCategories();
+
+    catForMask.HideHeader = true;
+    catForMask.RecodingIdent = recId;
+    catForMask.RecodingShowOriginal = false;
+
+    var mask: GenericCodeMask = new GenericCodeMask();
+    mask.Codes = (selectedDistributionCodes && selectedDistributionCodes.length > 0) ? selectedDistributionCodes : '';
+    mask.Type = MaskType.ShowCodes;
+    catForMask.Mask = mask;
+    catForMask.Totals = false;
+
+    return catForMask;
+  }
+
+  /*
+* add base to category column in Compare mode
+* @param {object} context: {state: state, report: report, log: log, table: table}
+* @param {boolean} withTitleSegment - equals true if it's needed to add title segment
+* @param {boolean} withPercents - equals true if it's needed to show horizontal percents instead of count
+*/
+  static function addBase_ForCompare(context, withTitleSegment, withPercents) {
+
+    var log = context.log;
+
+    var baseHeader: HeaderBase = new HeaderBase();
+    baseHeader.HideHeader = true;
+    baseHeader.Distributions.Enabled = true;
+    baseHeader.Distributions.Count = !withPercents;
+    baseHeader.Distributions.HorizontalPercents = !!withPercents;
+    baseHeader.Distributions.UseInnermostTotals = false;
+
+    if (withTitleSegment) {
+      var responses: HeaderSegment = new HeaderSegment();
+      responses.ShowTitle = true;
+      responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
+      responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
+
+      responses.SubHeaders.Add(baseHeader);
+
+      return responses;
+    }
+
+    return baseHeader;
+  }
+
+  // ---------------------------------- COMPARE END ----------------------------------
+
+
+  // ---------------------------------- BENCHMARKS START ----------------------------------
 
   /*
 * Assemble Benchmarks table
 * @param {object} context: {state: state, report: report, log: log, table: table}
 */
-
   static function tableBenchmarks_Render(context) {
 
     var state = context.state;
@@ -643,7 +687,6 @@ class PageResults {
 * Populate benchmarks table
 * @param {object} context: {state: state, report: report, log: log, table: table, user: user}
 */
-
   static function tableBenchmarks_AddColumns_Banner0(context) {
 
     var report = context.report;
@@ -685,7 +728,6 @@ class PageResults {
 * Checks is Benchmark table was build sucessfully, i.e. if benchmark project is defined
 *  @param {object} context: {state: state, report: report, log: log, table: table}
 */
-
   static function isBenchmarkAvailable(context) {
 
     var log = context.log;
@@ -703,10 +745,8 @@ class PageResults {
 * Checks is Benchmark table was build sucessfully, i.e. if benchmark project is defined
 *  @param {object} context: {state: state, report: report, log: log, table: table}
 */
-
   static function table_Benchmarks_hide(context) {
     return !isBenchmarkAvailable(context);
   }
-
 
 }
