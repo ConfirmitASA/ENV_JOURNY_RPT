@@ -18,12 +18,13 @@ class ParamUtil {
 
     //'p_projectSelector': { type: 'CombinationOfQuestions', locationType: 'CombinationOfQuestions', qIdCodes: 'pid', qIdLabels: 'pname'},
 
-    'p_TimePeriod':               { propertyName: 'TimePeriods',               type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_TimeUnitWithDefault':      { propertyName: 'TimeUnitsWithDefaultValue', type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_TimeUnitNoDefault':        { propertyName: 'TimeUnitsNoDefaultValue',   type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_CatDD_TimeUnitNoDefault':  { propertyName: 'TimeUnitsNoDefaultValue',   type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_DisplayMode':              { propertyName: 'DisplayMode',               type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_ResetSortedHitlist':       { propertyName: 'ResetSortedHitlist',        type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_TimePeriod':                 { propertyName: 'TimePeriods',               type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_TimeUnitWithDefault':        { propertyName: 'TimeUnitsWithDefaultValue', type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_TimeUnitNoDefault':          { propertyName: 'TimeUnitsNoDefaultValue',   type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_CatDD_TimeUnitNoDefault':    { propertyName: 'TimeUnitsNoDefaultValue',   type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_DisplayMode':                { propertyName: 'DisplayMode',               type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_ResetSortedHitlist':         { propertyName: 'ResetSortedHitlist',        type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_ScriptedFCompareParameter1': { propertyName: 'Distribution',        		 type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
 
     'p_Results_BreakBy':      { propertyName: 'BreakVariables',        type: 'QuestionList', locationType: 'Page', page: 'Page_Results'},
     'p_CategoricalDD_BreakBy':{ propertyName: 'BreakVariables',        type: 'QuestionList', locationType: 'Page', page: 'Page_Categorical_'},
@@ -133,6 +134,11 @@ class ParamUtil {
 
     if(parameterName === 'p_BenchmarkSet') {
       return DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'BenchmarkSet') ? true : false;
+    }
+
+    if(parameterName === 'p_ScriptedFCompareParameter1') {
+      var enableCompareFilterSection = DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'EnableCompareFilterSection');
+      return enableCompareFilterSection ? true : false;
     }
 
     return true;
@@ -343,7 +349,9 @@ class ParamUtil {
       parameterInfo = generateResourceObjectForFilterPanelParameter(context, parameterId);
     } else if (parameterId.indexOf(CompareUtil.breakByParameterNamePrefix)===0) {
       parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'BreakBy');
-    } else if (parameterId.indexOf(CompareUtil.filterParameterNamePrefix)===0) {
+      //} else if (parameterId.indexOf(CompareUtil.filterParameterNamePrefix)===0) {
+      // replace with upper line when Distribution filter is just Compare filter
+    } else if (parameterId.indexOf(CompareUtil.filterParameterNamePrefix)===0 && parameterId.slice(parameterId.length - 1) !== '1') {
       parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'Filter');
     } else {
       parameterInfo = reportParameterValuesMap[parameterId];
@@ -391,12 +399,12 @@ class ParamUtil {
    */
 
   static function modifyOptionsOrder(context, options) {
-      var reversed = [];
-      for(var i=options.length-1; i>=0; i--) {
-        reversed.push(options[i]);
-      }
+    var reversed = [];
+    for(var i=options.length-1; i>=0; i--) {
+      reversed.push(options[i]);
+    }
 
-      return reversed;
+    return reversed;
   }
 
   /**
@@ -608,10 +616,10 @@ class ParamUtil {
     var resourceInfo = {};
     var compareQuestionsList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
     var parameterNamePrefix = parameterType === 'BreakBy'
-      ? CompareUtil.breakByParameterNamePrefix
-      : (parameterType === 'Filter'
-        ? CompareUtil.filterParameterNamePrefix
-        : '');
+        ? CompareUtil.breakByParameterNamePrefix
+        : (parameterType === 'Filter'
+            ? CompareUtil.filterParameterNamePrefix
+            : '');
     var paramNumber = parseInt(parameterId.substr(parameterNamePrefix.length, parameterId.length));
 
     resourceInfo.type = 'QuestionId';
