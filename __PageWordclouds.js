@@ -77,10 +77,11 @@ class PageWordclouds {
    * @param {Object} context - {component: hitlist, pageContext: this.pageContext, report: report, user: user, state: state, confirmit: confirmit, log: log}
    * @param {Number} topNLimit - number of words to show in pdf export
    */
-  static function wordcloudTable_Render(context, topNLimit){
+  static function wordcloudTable_Render(context, topNLimit, showWordsWithFrequencyEqualToOne){
 
     var table = context.table;
     var report = context.report;
+    var state = context.state;
 
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var qId = ParamUtil.GetSelectedCodes(context, "p_WordcloudQs");
@@ -103,15 +104,38 @@ class PageWordclouds {
     questionHeader_frequency.Preaggregation = StatisticsType.Sum;
     questionHeader_frequency.Decimals = 0;
     questionHeader_frequency.HideHeader = true;
+    questionHeader_frequency.HideData = !(state.ReportExecutionMode == ReportExecutionMode.ExcelExport || showWordsWithFrequencyEqualToOne);
+
+    if (!(state.ReportExecutionMode == ReportExecutionMode.ExcelExport || showWordsWithFrequencyEqualToOne)) {
+      var questionHeader_formula : HeaderFormula = new HeaderFormula();
+      questionHeader_formula.HideHeader = true;
+      questionHeader_formula.Type = FormulaType.Expression;
+      questionHeader_formula.Expression = "if(cellv(col-1,row) > 1, cellv(col-1,row), emptyv())";
+    }
 
     // add header segment to change title for Excel export
     var hs: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'NumberOfTimesMentioned'), '');
     hs.DataSourceNodeId = DataSourceUtil.getDsId (context);
-    hs.SubHeaders.Add(questionHeader_frequency);
+
+    if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport || showWordsWithFrequencyEqualToOne) {
+      hs.SubHeaders.Add(questionHeader_frequency);
+    } else {
+      hs.SubHeaders.Add(questionHeader_formula);
+    }
 
     table.RowHeaders.Add(questionHeader_word);
-    table.ColumnHeaders.Insert(0, hs); //table.ColumnHeaders.Insert(0, questionHeader_frequency);
-    table.Use1000Separator = false;
 
+
+    hs.DataSourceNodeId = DataSourceUtil.getDsId (context);
+
+    if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport || showWordsWithFrequencyEqualToOne) {
+      table.ColumnHeaders.Insert(0, hs); //table.ColumnHeaders.Insert(0, questionHeader_frequency);
+    } else {
+      table.ColumnHeaders.Insert(0, questionHeader_frequency);
+      table.ColumnHeaders.Insert(1, hs); //table.ColumnHeaders.Insert(0, questionHeader_frequency);
+    }
+
+    table.Use1000Separator = false;
+    table.RemoveEmptyHeaders.Rows = true;
   }
 }
