@@ -1,6 +1,37 @@
 class Filters {
 
   /**
+   * not hierarchy, to exclude it from filters, not to add user to context - painful
+   */
+  static function static excludeReportBaseFilter(context, filterList) {
+
+    var pageContext = context.pageContext;
+    var persFilterExpr = pageContext.Items['PersonalizedFilterExpression'];
+
+    try { //for reports before that request and without property
+      var reportBaseQids = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReportBaseQuestion');
+    } catch(e) {
+      return filterList;
+    }
+
+    //list empty or no expression for the user
+    if(reportBaseQids.length === 0 || !!persFilterExpr) {
+      return filterList;
+    }
+
+    var newFilterList = [];
+    // need to improve that, have no capacity right now
+    for(var i=0; i<filterList.length; i++) {
+      for(var j=0; j< reportBaseQids.length; j++) {
+        if(filterList[i] !== reportBaseQids[j]) {
+          newFilterList.push(filterList[i]);
+        }
+      }
+    }
+
+    return newFilterList;
+  }
+  /**
    * Get the list of all filters defined on the survey level based on survey data variables
    * @param {object} context object {state: state, report: report, log: log}
    * @returns {Array} - array of questions to filter survey data by (not page specific)
@@ -8,8 +39,9 @@ class Filters {
   static function GetSurveyDataFilterList (context) {
 
     var log = context.log;
+    var filterList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'FiltersFromSurveyData');
 
-    return DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'FiltersFromSurveyData');
+    return excludeReportBaseFilter(context, filterList);
   }
 
   /**
@@ -20,7 +52,9 @@ class Filters {
   static function GetBackgroundDataFilterList (context) {
 
     var log = context.log;
-    return DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Filters');
+    var filterList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Filters');
+
+    return excludeReportBaseFilter(context, filterList);
   }
 
   /*
@@ -31,8 +65,9 @@ class Filters {
 
     var filterFromRespondentData = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Filters');
     var filterFromSurveyData = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'FiltersFromSurveyData');
+    var filterList = filterFromRespondentData.concat(filterFromSurveyData);
 
-    return filterFromRespondentData.concat(filterFromSurveyData);
+    return excludeReportBaseFilter(context, filterList);
   }
 
   /**
@@ -378,6 +413,22 @@ class Filters {
 
 
     return excludedFilters.join(' AND ');
+  }
+
+
+  /**
+   *
+   */
+  static function persFilterExpresion (context) {
+
+    var pageContext = context.pageContext;
+    var persFilterExpr = pageContext.Items['PersonalizedFilterExpression'];
+
+    if(persFilterExpr && persFilterExpr.length>0) {
+      return persFilterExpr;
+    }
+
+    return '';
   }
 
 }
