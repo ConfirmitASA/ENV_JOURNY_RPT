@@ -354,6 +354,21 @@ class StyleAndJavaScriptUtil {
       if (pageContext.Items['CurrentPageId'] === 'KPI') {
         css_string += '.card_type_verbatim { display: none; }';
       }
+
+      var distributionCodes = ParamUtil.GetSelectedCodes(context, 'p_ScriptedFCompareParameter1');
+      if (distributionCodes && distributionCodes.length > 0) {
+        switch (distributionCodes[0]) {
+          case '1':
+            css_string += '.cf_set1_cellLevel1, .cf_set1_cellLevel2, .cf_set1_cellLevel3 { background-color: #a04e53 !important; color: white !important; }';
+            break;
+          case '2':
+            css_string += '.cf_set1_cellLevel1, .cf_set1_cellLevel2, .cf_set1_cellLevel3 { background-color: #9d9d9d !important; color: white !important; }';
+            break;
+          case '3':
+            css_string += '.cf_set1_cellLevel1, .cf_set1_cellLevel2, .cf_set1_cellLevel3 { background-color: #91ad80 !important; color: white !important; }';
+            break;
+        }
+      }
     } else {
       css_string += '.highcharts-legend { display: none; }';
     }
