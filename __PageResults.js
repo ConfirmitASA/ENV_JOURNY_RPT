@@ -645,7 +645,7 @@ class PageResults {
 
     var responses: HeaderSegment = new HeaderSegment();
     responses.ShowTitle = true;
-    responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
+    responses.Label = TextAndParameterUtil.getLabelByKey(context, 'N');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
 
     if (withPercents) {
