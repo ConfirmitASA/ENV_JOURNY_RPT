@@ -57,6 +57,8 @@ class StyleAndJavaScriptUtil {
     translations['All'] = TextAndParameterUtil.getTextTranslationByKey(context, 'All');
     translations['Avg'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Avg');
     translations['Sorting'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Sorting');
+    translations['NumberOfAnswers'] = TextAndParameterUtil.getTextTranslationByKey(context, 'NumberOfAnswers');
+
     translations['pageTitlePostfix'] = TextAndParameterUtil.getTextTranslationByKey(context, '_for');
 
     return translations;
