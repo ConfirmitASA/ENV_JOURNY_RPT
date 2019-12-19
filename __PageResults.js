@@ -21,7 +21,7 @@ class PageResults {
     tableStatements_ApplyConditionalFormatting(context);
 
     table.RemoveEmptyHeaders.Rows = true;
-    table.RemoveEmptyHeaders.Columns = false;
+    table.RemoveEmptyHeaders.Columns = true;
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
