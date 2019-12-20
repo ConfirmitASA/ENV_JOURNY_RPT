@@ -21,7 +21,7 @@ class PageResults {
     tableStatements_ApplyConditionalFormatting(context);
 
     table.RemoveEmptyHeaders.Rows = true;
-    table.RemoveEmptyHeaders.Columns = false;
+    table.RemoveEmptyHeaders.Columns = true;
 
     table.Decimals = 0;
     table.RowNesting = TableRowNestingType.Nesting;
@@ -593,7 +593,7 @@ class PageResults {
       header.SubHeaders.Add(cat);
     }
 
-    var hp = addBase_ForCompare(context, true, true); //SEGMENT + HP
+    var hp = addBase_ForCompare(context, true); //SEGMENT + HP
     var count = addBase_ForCompare(context); //COUNT
     cat.SubHeaders.Add(hp);
     cat.SubHeaders.Add(count);
@@ -632,7 +632,7 @@ class PageResults {
 * @param {boolean} withTitleSegment - equals true if it's needed to add title segment
 * @param {boolean} withPercents - equals true if it's needed to show horizontal percents instead of count
 */
-  static function addBase_ForCompare(context, withTitleSegment, withPercents) {
+  static function addBase_ForCompare(context, withPercents) {
 
     var log = context.log;
 
@@ -643,18 +643,21 @@ class PageResults {
     baseHeader.Distributions.HorizontalPercents = !!withPercents;
     baseHeader.Distributions.UseInnermostTotals = false;
 
-    if (withTitleSegment) {
-      var responses: HeaderSegment = new HeaderSegment();
-      responses.ShowTitle = true;
-      responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
-      responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
+    var responses: HeaderSegment = new HeaderSegment();
+    responses.ShowTitle = true;
+    responses.Label = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
+    responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
 
-      responses.SubHeaders.Add(baseHeader);
-
-      return responses;
+    if (withPercents) {
+      for (var i = 0; i < responses.Label.Texts.Count; i++) {
+        var labelText = responses.Label.Texts[i];
+        labelText.Text += ' (%)';
+      }
     }
 
-    return baseHeader;
+    responses.SubHeaders.Add(baseHeader);
+
+    return responses;
   }
 
   // ---------------------------------- COMPARE END ----------------------------------
