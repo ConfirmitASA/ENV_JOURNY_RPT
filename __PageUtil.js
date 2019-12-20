@@ -9,11 +9,13 @@ class PageUtil {
     static function Initialise(context) {
 
         var state = context.state;
+        var user = context.user;
         var page = context.page;
         var log = context.log;
         var pageContext = context.pageContext;
 
         pageContext.Items.Add('CurrentPageId', page.CurrentPageId);
+        pageContext.Items.Add('PersonalizedFilterExpression', user.PersonalizedFilterExpression);
         ParamUtil.Initialise(context); // initialise parameters
 
         // if in current DS a page shouldn't be visible, than redirect to default page
