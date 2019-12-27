@@ -85,7 +85,7 @@ class FilterSummary {
       }
 
       //filter panel break by and filter parameters from Compare section
-      var compareOptions = CompareUtil.GetAllCompareParametersValues(context;
+      var compareOptions = CompareUtil.GetAllCompareParametersValues(context);
 
       if(compareOptions) {
         for(var i=0; i<compareOptions.length; i++) {
