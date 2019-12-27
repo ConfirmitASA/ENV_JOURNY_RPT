@@ -88,6 +88,9 @@ class FilterSummary {
       var compareOptions = CompareUtil.GetAllCompareParametersValues(context);
 
       if(compareOptions) {
+        str += TextAndParameterUtil.getTextTranslationByKey(context, 'CompareSummaryTitle');
+        str += System.Environment.NewLine;
+
         for(var i=0; i<compareOptions.length; i++) {
 
           var options = [];
