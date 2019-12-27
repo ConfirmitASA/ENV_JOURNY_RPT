@@ -46,10 +46,9 @@ class CompareUtil {
      * @param {string} parameterNumber number of scripted filter
      * @returns {boolean} indicates if filter exists
      */
-    static function hideScriptedCompareParameterByOrder(context, parameterNumber) {
+    static function hideScriptedCompareParameterByOrder(context, parameterType, parameterNumber) {
 
         var log = context.log;
-        var parameterType = context.parameterType;
         var parameterNamePrefix = GetCompareParameterInfo(parameterType).parameterNamePrefix;
         var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
 
@@ -67,13 +66,13 @@ class CompareUtil {
     /**
      * Get scripted compare parameter title.
      * @param {object} context object {state: state, report: report, log: log}
-     * @param {string} parameterNumber number of scripted filter
+     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
+     * @param {string} parameterNumber number of scripted Compare parameter by type
      * @returns {string} question title
      */
-    static function getScriptedCompareParameterNameByOrder(context, parameterNumber) {
+    static function getScriptedCompareParameterNameByOrder(context, parameterType, parameterNumber) {
 
         var log = context.log;
-        var parameterType = context.parameterType;
         var parametersList = GetCompareQuestionIdsByType(context, parameterType);
 
         if(parametersList.length >= parameterNumber) {
@@ -238,7 +237,7 @@ class CompareUtil {
         for (var i=0; i<parameters.length; i++) {
             // support for multi select. If you need multi-selectors, no code changes are needed, change only parameter setting + ? list css class
             var selectedOptions = ParamUtil.GetSelectedOptions(context, parameterNamePrefix+(i+1));
-            var parameterName = getScriptedCompareParameterNameByOrder(context, i+1);
+            var parameterName = getScriptedCompareParameterNameByOrder(context, parameterType, i+1);
 
             if(selectedOptions.length>0) {
                 parameterValues.push({Label: parameterName, selectedOptions: selectedOptions});
@@ -259,7 +258,7 @@ class CompareUtil {
         var log = context.log;
 
         var breakByParameterValues = GetCompareParametersValuesByType(context, 'BreakBy');
-        var filterParameterValues = GetCompareParametersValuesByType(context, 'BreakBy');
+        var filterParameterValues = GetCompareParametersValuesByType(context, 'Filter');
 
         return breakByParameterValues.concat(filterParameterValues);
     }
