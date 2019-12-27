@@ -84,6 +84,22 @@ class FilterSummary {
         }
       }
 
+      //filter panel break by and filter parameters from Compare section
+      var compareOptions = CompareUtil.GetAllCompareParametersValues(context;
+
+      if(compareOptions) {
+        for(var i=0; i<compareOptions.length; i++) {
+
+          var options = [];
+          for(var j=0; j<compareOptions[i].selectedOptions.length; j++) {
+            var option = compareOptions[i].selectedOptions[j];
+            options.push(option.Label);
+          }
+          str += '<div>'+compareOptions[i].Label+': '+options.join(', ')+'</div>';
+          str += System.Environment.NewLine;
+        }
+      }
+
       str = '<div class="layout layout_vertical"> <article class="card layout__card">'+str+'</article></div>'
       text.Output.Append(str);
     }

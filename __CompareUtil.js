@@ -19,6 +19,27 @@ class CompareUtil {
     }
 
     /**
+     * Get info (name prefix and number of parameters) for Compare parameter by type
+     * @param {object} context object {state: state, report: report, pageContext: pageContext, log: log}
+     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
+     * @param {string} parameterNumber number of scripted filter
+     * @returns {boolean} indicates if filter exists
+     */
+    static function GetCompareParameterInfo(parameterType) {
+        if (parameterType === 'BreakBy') {
+            return {
+                numberOfParameters: CompareUtil.numberOfBreakByParameters,
+                parameterNamePrefix: CompareUtil.breakByParameterNamePrefix
+            };
+        } else if (parameterType === 'Filter') {
+            return {
+                numberOfParameters: CompareUtil.numberOfFilterParameters,
+                parameterNamePrefix: CompareUtil.filterParameterNamePrefix
+            };
+        }
+    }
+
+    /**
      * Hide compare parameter placeholder if there're no options.
      * @param {object} context object {state: state, report: report, pageContext: pageContext, log: log}
      * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
@@ -29,11 +50,7 @@ class CompareUtil {
 
         var log = context.log;
         var parameterType = context.parameterType;
-        var parameterNamePrefix = parameterType === 'BreakBy'
-            ? CompareUtil.breakByParameterNamePrefix
-            : (parameterType === 'Filter'
-                ? CompareUtil.filterParameterNamePrefix
-                : '');
+        var parameterNamePrefix = GetCompareParameterInfo(parameterType).parameterNamePrefix;
         var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
 
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
@@ -120,19 +137,10 @@ class CompareUtil {
      **/
     static function isInCompareModeByType(context, parameterType) {
         var isInCompareMode = false;
-        var numberOfParameters;
-        var parameterNamePrefix;
+        var parameterInfo = GetCompareParameterInfo(parameterType);
 
-        if (parameterType === 'BreakBy') {
-            numberOfParameters = CompareUtil.numberOfBreakByParameters;
-            parameterNamePrefix = CompareUtil.breakByParameterNamePrefix;
-        } else if (parameterType === 'Filter') {
-            numberOfParameters = CompareUtil.numberOfFilterParameters;
-            parameterNamePrefix = CompareUtil.filterParameterNamePrefix;
-        }
-
-        for (var i = 1; i <= numberOfParameters; i++) {
-            var tempParameterName = parameterNamePrefix + i;
+        for (var i = 1; i <= parameterInfo.numberOfParameters; i++) {
+            var tempParameterName = parameterInfo.parameterNamePrefix + i;
             if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
                 isInCompareMode = true;
                 break;
@@ -212,4 +220,47 @@ class CompareUtil {
         return isCompareBreakByNeeded || isCompareFilterNeeded;
     }
 
+    /**
+     * Function to generate filter expression for the 'FilterPanel' filter. Filter parameters can be both single and multi selects
+     * @param {Object} context
+     * @param {string} parameterType - type of Compare parameter
+     * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
+     **/
+
+    static function GetCompareParametersValuesByType (context, parameterType) {
+
+        var log = context.log;
+
+        var parameterValues = [];
+        var parameters = GetCompareQuestionIdsByType(context, parameterType);
+        var parameterNamePrefix = GetCompareParameterInfo(parameterType).parameterNamePrefix;
+
+        for (var i=0; i<parameters.length; i++) {
+            // support for multi select. If you need multi-selectors, no code changes are needed, change only parameter setting + ? list css class
+            var selectedOptions = ParamUtil.GetSelectedOptions(context, parameterNamePrefix+(i+1));
+            var parameterName = getScriptedCompareParameterNameByOrder(context, i+1);
+
+            if(selectedOptions.length>0) {
+                parameterValues.push({Label: parameterName, selectedOptions: selectedOptions});
+            }
+        }
+
+        return parameterValues;
+    }
+
+    /**
+     * Function to generate filter expression for the 'FilterPanel' filter. Filter parameters can be both single and multi selects
+     * @param {Object} context
+     * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
+     **/
+
+    static function GetAllCompareParametersValues (context) {
+
+        var log = context.log;
+
+        var breakByParameterValues = GetCompareParametersValuesByType(context, 'BreakBy');
+        var filterParameterValues = GetCompareParametersValuesByType(context, 'BreakBy');
+
+        return breakByParameterValues.concat(filterParameterValues);
+    }
 }
