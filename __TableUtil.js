@@ -355,7 +355,7 @@ class TableUtil{
         var hsAvg : HeaderStatistics = new HeaderStatistics();
         hsAvg.Statistics.Avg = true;
         hsAvg.Statistics.Count = false;
-        hsAvg.HideHeader = true;
+        hsAvg.HideHeader = !Export.isExcelExportMode(context);
         var breakByHeadersAdded = CompareUtil.addCompareBreakByNestedHeaders(context, hsAvg);
         hsAvg.HideData = breakByHeadersAdded;
         hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+(!breakByHeadersAdded ? (' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')') : ''));
