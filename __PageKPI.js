@@ -300,7 +300,15 @@ class PageKPI {
 
             if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport) {
 
-                text.Output.Append(kpiResults[i].title +' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+'): ' + kpiResults[i].score + System.Environment.NewLine);
+                if (CompareUtil.isInCompareMode(context)) {
+                    text.Output.Append(kpiResults[i].title + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Avg') + '): ' + System.Environment.NewLine);
+                    for (var j = 0; j < kpiResults[i].multiScore.length; j++) {
+                        text.Output.Append('\t' + kpiResults[i].multiScore[j].name + ' - ' + kpiResults[i].multiScore[j].value + System.Environment.NewLine);
+                    }
+
+                } else {
+                    text.Output.Append(kpiResults[i].title + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Avg') + '): ' + kpiResults[i].score + System.Environment.NewLine);
+                }
 
             } else {
 
