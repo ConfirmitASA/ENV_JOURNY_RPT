@@ -564,7 +564,8 @@ class PageResults {
     addOneCompareHeader(context, totalHeader);
 
     if(compareModeQs.length <= 0) {
-      throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
+      return;
+      //throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
     }
 
     for(var i = 0; i < compareModeQs.length; i++) { //loop by column questions
