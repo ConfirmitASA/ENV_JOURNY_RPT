@@ -257,7 +257,7 @@ class Filters {
       var filterName = getScriptedFilterNameByOrder(context, i+1);
 
       if(selectedOptions.length>0) {
-        filterValues.push({Label: filterName, selectedOptions: selectedOptions});
+        filterValues.push({Label: filterName, selectedOptions: selectedOptions, qId: filters[i]});
       }
     }
 
