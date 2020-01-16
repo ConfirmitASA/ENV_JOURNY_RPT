@@ -217,6 +217,12 @@ class Filters {
     var filters = (filtersType==='background') ? bgFilters : GetFilterListByType(context, filtersType);
     var startNum = (filtersType==='background') ? 0 : bgFilters.length;
     var filterExpr = [];
+    var pageId = PageUtil.getCurrentPageIdInConfig(context);
+
+    //because Results page in Compare mode have columns that should be filtered now (JOU-112)
+    if (pageId === 'Results' && CompareUtil.isInCompareMode(context)) {
+      return '';
+    }
 
     for (var i=0; i<filters.length; i++) {
       var paramId = paramName+(i+startNum+1);
