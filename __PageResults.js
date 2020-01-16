@@ -555,7 +555,8 @@ class PageResults {
     var log = context.log;
     var table = context.table;
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
-    var compareModeQs = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'CompareModeColumnVariables');
+    var filters = Filters.GetFilterListByType(context, 'global');
+    var filterPrefix = 'p_ScriptedFilterPanelParameter';
 
     var totalHeader : HeaderSegment = new HeaderSegment();
     totalHeader.ShowTitle = true;
@@ -563,15 +564,14 @@ class PageResults {
     totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
     addOneCompareHeader(context, totalHeader);
 
-    if(compareModeQs.length <= 0) {
-      return;
-      //throw new Error('PageResults.tableStatements_AddColumnsInCompareMode: Questions for columns in Compare Mode are not found');
-    }
-
-    for(var i = 0; i < compareModeQs.length; i++) { //loop by column questions
-      var qe : QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, compareModeQs[i]);
-      var hq : HeaderQuestion = new HeaderQuestion(qe);
+    for(var i = 0; i < filters.length; i++) { //loop by column questions
+      var selectedCodes = ParamUtil.GetSelectedCodes(context, filterPrefix+(i+1));
+      var qe: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, filters[i]);
+      var hq: HeaderQuestion = new HeaderQuestion(qe);
       hq.ShowTotals = false;
+      var qmask: MaskFlat = new MaskFlat(true);
+      qmask.Codes.AddRange(selectedCodes);
+      hq.AnswerMask = qmask;
       addOneCompareHeader(context, hq);
     }
 
