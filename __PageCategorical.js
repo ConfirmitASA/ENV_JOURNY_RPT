@@ -410,7 +410,7 @@ class PageCategorical {
         var questionInfo = QuestionUtil.getQuestionInfo(context, drillDownQId);
         var row : HeaderQuestion = new HeaderQuestion(qe);
         TableUtil.maskOutNA(context, row);
-        row.IsCollapsed = (questionInfo.standardType === QuestionType.Single.toLowerCase()) ? false : true;
+        row.IsCollapsed = (questionInfo.standardType === ((String)(QuestionType.Single)).toLowerCase()) ? false : true;
         row.ShowTitle = false;
         row.ShowTotals = false;
 
