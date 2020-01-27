@@ -84,8 +84,9 @@ class PageCategorical {
 
         for (var i = 0; i < Qs.length; i++) {
 
-            var question: Question = project.GetQuestion(Qs[i]);
-            var answerCount = question.AnswerCount;
+            var newAnswerCount = QuestionUtil.getQuestionAnswers(context, Qs[i]);
+            var answerCount = Int32.Parse(newAnswerCount.length);
+
             if (QuestionUtil.hasAnswer(context, Qs[i], naCode)) {
                 answerCount--;
             }
@@ -197,12 +198,13 @@ class PageCategorical {
         var categoricals = [];
         for (var i = 0; i < Qs.length; i++) {
 
-            var question: Question = project.GetQuestion(Qs[i]);
-            var answerCount = question.AnswerCount;
+            var newAnswerCount = QuestionUtil.getQuestionAnswers(context, Qs[i]);
+            var answerCount = Int32.Parse(newAnswerCount.length);
 
             if (QuestionUtil.hasAnswer(context, Qs[i], naCode)) {
                 answerCount--;
             }
+
             var title = QuestionUtil.getQuestionTitle(context, Qs[i]);
             var displayType = 'list';
             var displayNumberOfAnswers = System.Math.Min(topN, answerCount);
@@ -405,11 +407,10 @@ class PageCategorical {
         // add row  = header question
         var drillDownQId = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown') ? state.Parameters.GetString('p_Drilldown').split(":")[1] : '';
         var qe : QuestionnaireElement =  QuestionUtil.getQuestionnaireElement(context, drillDownQId);
-        var project : Project = DataSourceUtil.getProject(context);
-        var question : Question = project.GetQuestion(drillDownQId);
+        var questionInfo = QuestionUtil.getQuestionInfo(context, drillDownQId);
         var row : HeaderQuestion = new HeaderQuestion(qe);
         TableUtil.maskOutNA(context, row);
-        row.IsCollapsed = (question.QuestionType === QuestionType.Single) ? false : true;
+        row.IsCollapsed = (questionInfo.standardType === QuestionType.Single.toLowerCase()) ? false : true;
         row.ShowTitle = false;
         row.ShowTotals = false;
 

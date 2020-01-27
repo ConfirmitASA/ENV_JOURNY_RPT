@@ -8,7 +8,7 @@ class QuestionUtil {
    * - QuestionnaireElement for this qid
    * @param {object} context object {state: state, report: report, log: log}
    * @param {string} questionId
-   * @returns {object} questionInfo { type: string, qid: string, precode: string}
+   * @returns {object} questionInfo { type: string, qid: string, precode: string, standardType: reportalType}
    */
 
   static function getQuestionInfo (context, questionId) {
