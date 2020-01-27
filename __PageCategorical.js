@@ -74,7 +74,6 @@ class PageCategorical {
         var log = context.log;
         var suppressSettings = context.suppressSettings;
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
-        var project: Project = DataSourceUtil.getProject(context);
         var questionConfigParamName = tableType == 'multi' ? 'ResultMultiCategoricalQuestions' : 'ResultCategoricalQuestions';
 
         // add rows (single or multi questions)
@@ -189,7 +188,6 @@ class PageCategorical {
 
         // show topN answers in a list for questions
         var topN = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, "topN");
-        var project: Project = DataSourceUtil.getProject(context);
         var tableName = (tableType == 'multi') ? 'Multicategorical' : 'Categorical';
         var questionConfigParamName = (tableType == 'multi') ? 'ResultMultiCategoricalQuestions' : 'ResultCategoricalQuestions';
         var naCode = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'NA_answerCode');
@@ -522,10 +520,8 @@ class PageCategorical {
         var text = context.text;
 
         var drilldownId = !state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown') ? state.Parameters.GetString('p_Drilldown').split(":")[1] : '';
-        var project : Project = DataSourceUtil.getProject(context);
-        var qe: QuestionnaireElement = new QuestionnaireElement(project, drilldownId);
-        var q: Question = project.GetQuestion(qe);
+        var title = QuestionUtil.getQuestionTitle(context, drilldownId);
 
-        text.Output.Append(q.Text);
+        text.Output.Append(title);
     }
 }
