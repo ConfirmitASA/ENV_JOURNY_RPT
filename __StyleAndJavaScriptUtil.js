@@ -47,7 +47,7 @@ class StyleAndJavaScriptUtil {
     var log = context.log;
     var translations = {};
 
-    translations['No data to display'] = TextAndParameterUtil.getTextTranslationByKey(context, 'NoDataMsg');
+    translations['NoDataToDisplay'] = TextAndParameterUtil.getTextTranslationByKey(context, 'NoDataMsg');
     translations['ResetSorting'] = TextAndParameterUtil.getTextTranslationByKey(context, 'ResetSorting');
     translations['UpToCard'] = TextAndParameterUtil.getTextTranslationByKey(context, 'UpToCard');
     translations['From'] = TextAndParameterUtil.getTextTranslationByKey(context, 'From');
@@ -58,7 +58,20 @@ class StyleAndJavaScriptUtil {
     translations['Avg'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Avg');
     translations['Sorting'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Sorting');
     translations['NumberOfAnswers'] = TextAndParameterUtil.getTextTranslationByKey(context, 'NumberOfAnswers');
-    translations['PleaseSelectQuestions'] = TextAndParameterUtil.getTextTranslationByKey(context, 'PleaseSelectQuestions');
+    translations['Survey'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Survey');
+    translations['Filters'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Filters');
+    translations['Compare'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Compare');
+    translations['Score'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Score');
+    translations['BreakBy'] = TextAndParameterUtil.getTextTranslationByKey(context, 'BreakBy');
+    translations['TagQuestion'] = TextAndParameterUtil.getTextTranslationByKey(context, 'TagQuestion');
+    translations['CommentNumber'] = TextAndParameterUtil.getTextTranslationByKey(context, 'CommentNumber');
+    translations['ScoreVsNormValue'] = TextAndParameterUtil.getTextTranslationByKey(context, 'ScoreVsNormValue');
+    translations['About'] = TextAndParameterUtil.getTextTranslationByKey(context, 'About');
+    translations['CollapseExpand'] = TextAndParameterUtil.getTextTranslationByKey(context, 'CollapseExpand');
+    translations['ScrollUpToCard'] = TextAndParameterUtil.getTextTranslationByKey(context, 'ScrollUpToCard');
+    translations['InQueue'] = TextAndParameterUtil.getTextTranslationByKey(context, 'InQueue');
+    translations['Completed'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Completed');
+    translations['Error'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Error');
 
     translations['pageTitlePostfix'] = TextAndParameterUtil.getTextTranslationByKey(context, '_for');
 
@@ -95,13 +108,6 @@ class StyleAndJavaScriptUtil {
     /* NEW FOR REDESIGN */
     properties.push('isInCompareMode: '+JSON.stringify(CompareUtil.isInCompareMode(context)));
 
-    properties.push('survey: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Survey')));
-    properties.push('filters: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Filters')));
-    properties.push('compare: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Compare')));
-    properties.push('score: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Score')));
-    properties.push('defaultPlaceholderTxt: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'BreakBy')));
-    properties.push('tagPlaceholderTxt: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'TagQuestion')));
-
     properties.push('logoLink:'+JSON.stringify(Config.logo));
 
     properties.push('pagesToShow: '+JSON.stringify(PageUtil.getPageIdsToShow(context)));
@@ -109,18 +115,6 @@ class StyleAndJavaScriptUtil {
     properties.push('pageHasViewSwitch: '+JSON.stringify(PageUtil.isViewSwitchAvailable(context)));
 
     properties.push('hideTimePeriodFilters: '+Filters.isTimePeriodFilterHidden(context));
-
-    properties.push('noDataWarning: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'NoDataMsg')));
-
-    properties.push('commentNumber: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'CommentNumber')));
-
-    properties.push('TableChartColName_ScoreVsNormValue: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'ScoreVsNormValue')));
-
-    properties.push('TableChartColName_Distribution: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Distribution')));
-
-    properties.push('About: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'About')));
-
-    properties.push('CollapseExpand: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'CollapseExpand')));
 
     properties.push('Styling: '+JSON.stringify(generateStyleModule()));
 
@@ -146,7 +140,6 @@ class StyleAndJavaScriptUtil {
     if (pageContext.Items['CurrentPageId'] === 'Categorical_') {
       properties.push('pieData: '+JSON.stringify(PageCategorical.getPieCollection(context)));
       properties.push('pieColors: '+JSON.stringify(Config.pieColors));
-      properties.push('scrollUpToCardText: ' + JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Page_Categorical_ScrollUpToCardText')));
 
       if (!state.Parameters.IsNull('p_Drilldown') && state.Parameters.GetString('p_Drilldown')) {
         properties.push('drilldownId: ' + JSON.stringify(state.Parameters.GetString('p_Drilldown')));
@@ -154,7 +147,7 @@ class StyleAndJavaScriptUtil {
     }
 
     if (pageContext.Items['CurrentPageId'] === 'CategoricalDrilldown') {
-      properties.push('isProjectSelectorDisabled: '+true);
+      properties.push('isProjectSelectorDisabled: ' + true);
     }
 
     if (pageContext.Items['CurrentPageId'] === 'Wordclouds') {
@@ -182,11 +175,6 @@ class StyleAndJavaScriptUtil {
     properties.push('ppt: ' + JSON.stringify(exportWindowOptions.indexes.ppt)+'}');
 
     properties.push('executionMode: ' + JSON.stringify(state.ReportExecutionMode));
-
-    properties.push('exportTranslations: {inQueueText: ' + JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'InQueue')));
-    properties.push('completedText: ' + JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Completed')));
-    properties.push('errorText: ' + JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Error'))+'}');
-
 
     globalVarScript.push('<script>');
     globalVarScript.push(';var ReportTemplateConfig = (function(){');
