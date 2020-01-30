@@ -138,7 +138,8 @@ class PageResults {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
     // this fixes break by recoding for categorizations in rows
-    var helpQuestionQE: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, 'status');
+    var helpQuestionQE: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context,
+        DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'CategorizationHelpQuestion'));
     var helpQuestionHQ: HeaderQuestion = new HeaderQuestion(helpQuestionQE);
     helpQuestionHQ.HideData = true;
     helpQuestionHQ.HideHeader = true;
