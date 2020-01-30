@@ -14,11 +14,11 @@ class PageResults {
     var suppressSettings = context.suppressSettings;
 
 
-    tableStatements_AddColumns(context, bannerId);
-    tableStatements_AddRows(context);
-    setSuppress(context, table, suppressSettings);
+    PageResults.tableStatements_AddColumns(context, bannerId);
+    PageResults.tableStatements_AddRows(context);
+    //setSuppress(context, table, suppressSettings);
 
-    tableStatements_ApplyConditionalFormatting(context);
+    PageResults.tableStatements_ApplyConditionalFormatting(context);
 
     table.RemoveEmptyHeaders.Rows = true;
     table.RemoveEmptyHeaders.Columns = true;
@@ -62,9 +62,9 @@ class PageResults {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
     if(CompareUtil.isInCompareMode(context)) {
-      tableStatements_AddColumnsInCompareMode(context);
+      PageResults.tableStatements_AddColumnsInCompareMode(context);
     } else {
-      tableStatements_AddColumns_Banner0(context);
+      PageResults.tableStatements_AddColumns_Banner0(context);
     }
     return;
   }
@@ -87,12 +87,12 @@ class PageResults {
     }
 
     if(resultStatements && resultStatements.length>0) {
-      tableStatements_AddRows_Banner0(context);
+      PageResults.tableStatements_AddRows_Banner0(context);
       return;
     }
 
     if(dimensions && dimensions.length>0) {
-      tableStatements_AddRows_Banner1(context);
+      PageResults.tableStatements_AddRows_Banner1(context);
       return;
     }
 
@@ -181,13 +181,13 @@ class PageResults {
     var log = context.log;
 
     // add Score column
-    addScore(context);
+    PageResults.addScore(context);
     //add distribution barChart
-    addDistributionBarChart(context);
+    PageResults.addDistributionBarChart(context);
     // add Responses Column
-    addResponsesColumn(context);
+    PageResults.addResponsesColumn(context);
     // add Benchmark related columns
-    tableStatements_AddBenchmarkColumns_Banner0(context);
+    PageResults.tableStatements_AddBenchmarkColumns_Banner0(context);
   }
 
   /*
@@ -259,7 +259,7 @@ class PageResults {
       bcCategories.Decimals = 0;
       bcCategories.HideData = true;
 
-      if(CompareUtil.isInCompareMode(context) && !(state.ReportExecutionMode === ReportExecutionMode.PdfExport || state.ReportExecutionMode === ReportExecutionMode.ExcelExport)) {
+      if(CompareUtil.isInCompareMode(context) && !Export.isExportMode(context)) {
         fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
       } else {
         fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
@@ -294,7 +294,7 @@ class PageResults {
       bcCategories.Decimals = 0;
       bcCategories.HideData = true;
 
-      if(CompareUtil.isInCompareMode(context) && !(state.ReportExecutionMode === ReportExecutionMode.PdfExport || state.ReportExecutionMode === ReportExecutionMode.ExcelExport)) {
+      if(CompareUtil.isInCompareMode(context) && !Export.isExportMode(context)) {
         diff.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
       } else {
         diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
@@ -441,7 +441,7 @@ class PageResults {
 
 
       // add formula to calculate score vs. benchmark
-      if(BenchmarkViewType === 'chart' && state.ReportExecutionMode !== ReportExecutionMode.ExcelExport) {
+      if(BenchmarkViewType === 'chart' && !Export.isExcelExportMode(context)) {
 
         benchmarkContent.HideData = true;
 
@@ -476,7 +476,7 @@ class PageResults {
         formula_ScoreVsNorm.Type = FormulaType.Expression;
         formula_ScoreVsNorm.Expression = 'if((cellv(1,row)-cellv(col-2,row) < 1 AND (cellv(1,row)-cellv(col-2,row) > -1)), 0, cellv(1,row)-cellv(col-2,row))'; // the 1st column in the table is score
 
-        if(state.ReportExecutionMode === ReportExecutionMode.ExcelExport) {
+        if(Export.isExcelExportMode(context)) {
           formula_ScoreVsNorm.Expression = 'if((cellv(1,row)-cellv(col-1,row) < 1 AND (cellv(1,row)-cellv(col-1,row) > -1)), 0, cellv(1,row)-cellv(col-1,row))'; // no bar chart header in excel
           formula_ScoreVsNorm.Title = TextAndParameterUtil.getLabelByKey(context, 'ScoreVsNormValue');
         }
@@ -562,7 +562,7 @@ class PageResults {
     totalHeader.ShowTitle = true;
     totalHeader.Label = TextAndParameterUtil.getLabelByKey(context, 'Total');
     totalHeader.DataSourceNodeId = DataSourceUtil.getDsId(context);
-    addOneCompareHeader(context, totalHeader);
+    PageResults.addOneCompareHeader(context, totalHeader);
 
     for(var i = 0; i < filters.length; i++) { //loop by column questions
       var selectedCodes = ParamUtil.GetSelectedCodes(context, filterPrefix+(i+1));
@@ -572,7 +572,7 @@ class PageResults {
       var qmask: MaskFlat = new MaskFlat(true);
       qmask.Codes.AddRange(selectedCodes);
       hq.AnswerMask = qmask;
-      addOneCompareHeader(context, hq);
+      PageResults.addOneCompareHeader(context, hq);
     }
 
     //log.LogDebug(compareModeQs);
@@ -587,19 +587,88 @@ class PageResults {
 
     var breakByH = TableUtil.addBreakByNestedHeader(context, header); //INTERVIEW_END: add break by based on time period break by parameter
 
-    var cat = addDistributionBreakBy_ForCompare(context, breakByH); //CATEGORY: instead of filtering add break by distribution - temp
+    var cat = PageResults.addDistributionBreakBy_ForCompare(context, breakByH); //CATEGORY: instead of filtering add break by distribution - temp
     if (breakByH) {
       breakByH.SubHeaders.Add(cat);
     } else {
       header.SubHeaders.Add(cat);
     }
 
-    var hp = addBase_ForCompare(context, true); //SEGMENT + HP
-    var count = addBase_ForCompare(context); //COUNT
+    var hp = PageResults.addBase_ForCompare(context, true); //HP
+    hp.HideData = true;
+    var count = PageResults.addBase_ForCompare(context); //COUNT
+    count.HideData = true;
     cat.SubHeaders.Add(hp);
     cat.SubHeaders.Add(count);
 
+    var hpLabel = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
+    for (var i = 0; i < hpLabel.Texts.Count; i++) {
+      var labelText = hpLabel.Texts[i];
+      labelText.Text += ' (%)';
+    }
+    var countLabel = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
+    var scoreLabel = TextAndParameterUtil.getLabelByKey(context, 'Score');
+
+    var distributionOptions = TextAndParameterUtil.getParameterValuesByKey('Distribution');
+    var codesCount = 0; // we assume that Distribution has all codes
+    for (var i = 0; i < distributionOptions.length; i++) {
+      codesCount += distributionOptions[i].AnswerCodes.length;
+    }
+
+    var selectedDistributionsCount = ParamUtil.GetSelectedCodes(context, "p_ScriptedFCompareParameter1").length;
+
+    var hpSupFormula = PageResults.createSuppressFormulaForHeader(context, 1, 2, selectedDistributionsCount, hpLabel, true);
+    var countSupFormula = PageResults.createSuppressFormulaForHeader(context, 2, 2, selectedDistributionsCount, countLabel);
+
+    var score = PageResults.addScore_ForCompare(context, scoreLabel); //SEGMENT -> CATEGORY + FORMULA
+
+    if (breakByH) {
+      breakByH.SubHeaders.Add(hpSupFormula);
+      breakByH.SubHeaders.Add(countSupFormula);
+      breakByH.SubHeaders.Add(score);
+    } else {
+      header.SubHeaders.Add(hpSupFormula);
+      header.SubHeaders.Add(countSupFormula);
+      header.SubHeaders.Add(score);
+    }
+
     context.table.ColumnHeaders.Add(header);
+  }
+
+  /*
+* create formula header with suppress in expression
+* @param {object} context: {state: state, report: report, log: log, table: table}
+* @param {int} countShift - shift to count column
+* @param {int} headerShift - shift to current header column
+* @param {Label} titleLabel - Label for current header
+* @param {boolean} showPercent - true if percent sign should be shown
+*/
+  static function createSuppressFormulaForHeader(context, countShift, headerShift, selectedDistributionsCount, titleLabel, showPercent) {
+
+    var log = context.log;
+
+    var supFormula: HeaderFormula = new HeaderFormula();
+    supFormula.Type = FormulaType.Expression;
+
+    var countFormulaExpression = '';
+    var headerFormulaExpression = '';
+
+    for (var i = 0; i < selectedDistributionsCount; i++) {
+      countFormulaExpression += 'cellv(col-' + (countShift + (2*i)) + ',row)';
+      headerFormulaExpression += 'cellv(col-' + (headerShift + (2*i)) + ',row)' + (showPercent ? '/100' : '');
+      if ((i + 1) != selectedDistributionsCount) {
+        countFormulaExpression += ' + ';
+        headerFormulaExpression += ' + ';
+      }
+    }
+
+    var suppressValue = Config.SuppressSettings.TableSuppressValue;
+    supFormula.Expression = 'if((' + countFormulaExpression + ') >= ' + suppressValue + ', ' + headerFormulaExpression + ', emptyv())';
+
+    supFormula.Percent = showPercent;
+    supFormula.ShowTitle = true;
+    supFormula.Title = titleLabel;
+    return supFormula;
   }
 
   /*
@@ -630,7 +699,6 @@ class PageResults {
   /*
 * add base to category column in Compare mode
 * @param {object} context: {state: state, report: report, log: log, table: table}
-* @param {boolean} withTitleSegment - equals true if it's needed to add title segment
 * @param {boolean} withPercents - equals true if it's needed to show horizontal percents instead of count
 */
   static function addBase_ForCompare(context, withPercents) {
@@ -644,21 +712,66 @@ class PageResults {
     baseHeader.Distributions.HorizontalPercents = !!withPercents;
     baseHeader.Distributions.UseInnermostTotals = false;
 
-    var responses: HeaderSegment = new HeaderSegment();
-    responses.ShowTitle = true;
-    responses.Label = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
-    responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
+    return baseHeader;
+  }
 
-    if (withPercents) {
-      for (var i = 0; i < responses.Label.Texts.Count; i++) {
-        var labelText = responses.Label.Texts[i];
-        labelText.Text += ' (%)';
+  /*
+* add score after category column in Compare mode
+* @param {object} context: {state: state, report: report, log: log, table: table}
+*/
+  static function addScore_ForCompare(context, titleLabel) {
+
+    var log = context.log;
+
+    var catForScore: HeaderCategories = new HeaderCategories();
+    catForScore.Totals = false;
+    catForScore.HideHeader = true;
+    catForScore.HideData = true;
+    TableUtil.maskOutNA(context, catForScore);
+
+    var distributionOptions = TextAndParameterUtil.getParameterValuesByKey('Distribution');
+    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_ScriptedFCompareParameter1").join(',');
+    var selectedDistributionOptions = [];
+
+    var codesCount = 0; // we assume that Distribution has all codes
+    for (var i = 0; i < distributionOptions.length; i++) {
+      // this condition works only if codes are < 10
+      if (selectedDistributionCodes.indexOf(distributionOptions[i].Code) >= 0) {
+        selectedDistributionOptions.push(distributionOptions[i]);
+      }
+      codesCount += distributionOptions[i].AnswerCodes.length;
+    }
+
+    var formulaExpression = '';
+    for (var i = 0; i < selectedDistributionOptions.length; i++) {
+      for (var j = 0; j < selectedDistributionOptions[i].AnswerCodes.length; j++) {
+        formulaExpression += 'cellv(col-' + (codesCount-selectedDistributionOptions[i].AnswerCodes[j]+1) + ',row)*' + selectedDistributionOptions[i].AnswerScores[j];
+        if ((j + 1) != selectedDistributionOptions[i].AnswerCodes.length) {
+          formulaExpression += ' + ';
+        }
+      }
+      if ((i + 1) != selectedDistributionOptions.length) {
+        formulaExpression += ' + ';
       }
     }
 
-    responses.SubHeaders.Add(baseHeader);
+    if (formulaExpression) {
+      formulaExpression = 'if(cellv(col-1-' + codesCount + ',row)>0, (' + formulaExpression + ')/cellv(col-1-' + codesCount + ',row), emptyv())';
 
-    return responses;
+      var formulaHeader: HeaderFormula = new HeaderFormula();
+      formulaHeader.Type = FormulaType.Expression;
+      formulaHeader.Expression = formulaExpression;
+      formulaHeader.ShowTitle = true;
+      formulaHeader.Title = titleLabel;
+
+      var score: HeaderSegment = new HeaderSegment(); //to unite categories and formula
+      score.DataSourceNodeId = DataSourceUtil.getDsId(context);
+      score.HideHeader = true;
+      score.SubHeaders.Add(catForScore);
+      score.SubHeaders.Add(formulaHeader);
+
+      return score;
+    }
   }
 
   // ---------------------------------- COMPARE END ----------------------------------
@@ -678,8 +791,8 @@ class PageResults {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
     if(isBenchmarkAvailable(context)) {
-      tableStatements_AddRows(context);
-      tableBenchmarks_AddColumns_Banner0(context);
+      PageResults.tableStatements_AddRows(context);
+      PageResults.tableBenchmarks_AddColumns_Banner0(context);
 
       table.Decimals = 0;
       table.RowNesting = TableRowNestingType.Nesting;

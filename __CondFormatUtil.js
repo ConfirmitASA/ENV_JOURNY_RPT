@@ -18,9 +18,10 @@ class CondFormatUtil {
         for (var i = 0; i < colors.length; i++) {
             var c1 : Condition = new Condition();
             c1.Style = colorSet+'_'+colors[i].style;
-            if (i==0) c1.Expression = 'cellv(col,row)==emptyv()';
-            else if (colors[i].condition) c1.Expression = 'cellv(col,row)'+colors[i].condition;
+            if (i==0) c1.Expression = (colors[i].conditionBody ? colors[i].conditionBody : 'cellv(col,row)') + '==emptyv()';
+            else if (colors[i].condition) c1.Expression = (colors[i].conditionBody ? colors[i].conditionBody : 'cellv(col,row)') + colors[i].condition;
             else c1.Expression = 'true';
+            context.log.LogDebug(c1.Expression);
             area.AddCondition(c1);
         }
 
