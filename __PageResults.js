@@ -602,11 +602,7 @@ class PageResults {
     cat.SubHeaders.Add(hp);
     cat.SubHeaders.Add(count);
 
-    var hpLabel = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
-    for (var i = 0; i < hpLabel.Texts.Count; i++) {
-      var labelText = hpLabel.Texts[i];
-      labelText.Text += ' (%)';
-    }
+    var hpLabel = TextAndParameterUtil.getLabelByKey(context, 'ShareOfAnswers');
     var countLabel = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
     var scoreLabel = TextAndParameterUtil.getLabelByKey(context, 'Score');
 

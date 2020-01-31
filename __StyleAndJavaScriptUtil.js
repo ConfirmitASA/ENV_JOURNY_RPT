@@ -57,6 +57,7 @@ class StyleAndJavaScriptUtil {
     translations['All'] = TextAndParameterUtil.getTextTranslationByKey(context, 'All');
     translations['Avg'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Avg');
     translations['Sorting'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Sorting');
+    translations['ShareOfAnswers'] = TextAndParameterUtil.getTextTranslationByKey(context, 'ShareOfAnswers');
     translations['NumberOfAnswers'] = TextAndParameterUtil.getTextTranslationByKey(context, 'NumberOfAnswers');
     translations['PleaseSelectQuestions'] = TextAndParameterUtil.getTextTranslationByKey(context, 'PleaseSelectQuestions');
     translations['Survey'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Survey');
