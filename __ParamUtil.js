@@ -24,7 +24,7 @@ class ParamUtil {
     'p_CatDD_TimeUnitNoDefault':    { propertyName: 'TimeUnitsNoDefaultValue',   type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
     'p_DisplayMode':                { propertyName: 'DisplayMode',               type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
     'p_ResetSortedHitlist':         { propertyName: 'ResetSortedHitlist',        type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_ScriptedFCompareParameter1': { propertyName: 'Distribution',        		 type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_Distribution':               { propertyName: 'Distribution',        		 type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
 
     'p_Results_BreakBy':      { propertyName: 'BreakVariables',        type: 'QuestionList', locationType: 'Page', page: 'Page_Results'},
     'p_CategoricalDD_BreakBy':{ propertyName: 'BreakVariables',        type: 'QuestionList', locationType: 'Page', page: 'Page_Categorical_'},
@@ -136,7 +136,7 @@ class ParamUtil {
       return DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'BenchmarkSet') ? true : false;
     }
 
-    if(parameterName === 'p_ScriptedFCompareParameter1') {
+    if(parameterName === CompareUtil.distributionParameterName) {
       var enableCompareFilterSection = DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'EnableCompareFilterSection');
       return enableCompareFilterSection ? true : false;
     }
@@ -347,12 +347,10 @@ class ParamUtil {
 
     if(parameterId.indexOf('p_ScriptedFilterPanelParameter')===0) {
       parameterInfo = generateResourceObjectForFilterPanelParameter(context, parameterId);
-    } else if (parameterId.indexOf(CompareUtil.breakByParameterNamePrefix)===0) {
-      parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'BreakBy');
-      //} else if (parameterId.indexOf(CompareUtil.filterParameterNamePrefix)===0) {
-      // replace with upper line when Distribution filter is just Compare filter
-    } else if (parameterId.indexOf(CompareUtil.filterParameterNamePrefix)===0 && parameterId.slice(parameterId.length - 1) !== '1') {
-      parameterInfo = generateResourceObjectForCompareParameter(context, parameterId, 'Filter');
+    } else if (parameterId.indexOf(CompareUtil.parameterNamePrefix)===0) {
+      parameterInfo = generateResourceObjectForCompareParameter(context, parameterId);
+    } else if (parameterId.indexOf(CompareUtil.distributionParameterName)===0) {
+      parameterInfo = generateResourceObjectForCompareDistributionParameter(context, parameterId);
     } else {
       parameterInfo = reportParameterValuesMap[parameterId];
     }
@@ -611,16 +609,11 @@ class ParamUtil {
     return resourceInfo;
   }
 
-  static function generateResourceObjectForCompareParameter(context, parameterId, parameterType) {
+  static function generateResourceObjectForCompareParameter(context, parameterId) {
 
     var resourceInfo = {};
-    var compareQuestionsList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
-    var parameterNamePrefix = parameterType === 'BreakBy'
-        ? CompareUtil.breakByParameterNamePrefix
-        : (parameterType === 'Filter'
-            ? CompareUtil.filterParameterNamePrefix
-            : '');
-    var paramNumber = parseInt(parameterId.substr(parameterNamePrefix.length, parameterId.length));
+    var compareQuestionsList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsParameterName);
+    var paramNumber = parseInt(parameterId.substr(CompareUtil.parameterNamePrefix.length, parameterId.length));
 
     resourceInfo.type = 'QuestionId';
     resourceInfo.locationType = 'Compare';
@@ -642,7 +635,7 @@ class ParamUtil {
 
     // change second parameter of slice function if Compare parameters have more than 9 copies
     var parameterIdWithoutNumber = parameterId.slice(0, -1);
-    if (parameterIdWithoutNumber === CompareUtil.breakByParameterNamePrefix || parameterIdWithoutNumber === CompareUtil.filterParameterNamePrefix) {
+    if (parameterIdWithoutNumber === CompareUtil.parameterNamePrefix || parameterIdWithoutNumber === CompareUtil.filterParameterNamePrefix) {
       CompareUtil.setMaskForCompareParameter(context);
     }
   }

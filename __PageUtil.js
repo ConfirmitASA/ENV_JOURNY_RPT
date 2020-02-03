@@ -42,9 +42,9 @@ class PageUtil {
             HierarchyUtil.setDataTable(context);
         }
 
-        // temporarily for single-typed first Compare filter
+        // for single-typed first Compare filter
         if (page.SubmitSource === "ScoreBtn") {
-            state.Parameters['p_ScriptedFCompareParameter1'] = null;
+            state.Parameters[CompareUtil.distributionParameterName] = null;
         }
 
     }

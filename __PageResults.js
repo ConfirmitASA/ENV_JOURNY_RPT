@@ -222,7 +222,7 @@ class PageResults {
       score.HideData = true;
       //score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
-      if(CompareUtil.isInCompareMode(context) && !(state.ReportExecutionMode === ReportExecutionMode.PdfExport || state.ReportExecutionMode === ReportExecutionMode.ExcelExport)) {
+      if(CompareUtil.isInCompareMode(context) && !Export.isExportMode(context)) {
         avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
         score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Total');
       } else {
@@ -612,7 +612,7 @@ class PageResults {
       codesCount += distributionOptions[i].AnswerCodes.length;
     }
 
-    var selectedDistributionsCount = ParamUtil.GetSelectedCodes(context, "p_ScriptedFCompareParameter1").length;
+    var selectedDistributionsCount = ParamUtil.GetSelectedCodes(context, "p_Distribution").length;
 
     var hpSupFormula = PageResults.createSuppressFormulaForHeader(context, 1, 2, selectedDistributionsCount, hpLabel, true);
     var countSupFormula = PageResults.createSuppressFormulaForHeader(context, 2, 2, selectedDistributionsCount, countLabel);
@@ -676,7 +676,7 @@ class PageResults {
 
     var log = context.log;
     // temp until it is clear what compare filtering really is
-    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_ScriptedFCompareParameter1").join(',');
+    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_Distribution").join(',');
     var recId = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'DistributionRecodingId');
     var catForMask: HeaderCategories = new HeaderCategories();
 
@@ -727,7 +727,7 @@ class PageResults {
     TableUtil.maskOutNA(context, catForScore);
 
     var distributionOptions = TextAndParameterUtil.getParameterValuesByKey('Distribution');
-    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_ScriptedFCompareParameter1").join(',');
+    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_Distribution").join(',');
     var selectedDistributionOptions = [];
 
     var codesCount = 0; // we assume that Distribution has all codes

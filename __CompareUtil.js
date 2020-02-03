@@ -1,60 +1,56 @@
 class CompareUtil {
 
-    static var numberOfBreakByParameters = 5;
-    static var breakByParameterNamePrefix = 'p_ScriptedBBCompareParameter';
-
-    static var numberOfFilterParameters = 5;
-    static var filterParameterNamePrefix = 'p_ScriptedFCompareParameter';
+    static var numberOfParameters = 5;
+    static var parameterNamePrefix = 'p_ScriptedCompareParameter';
+    static var distributionParameterName = 'p_Distribution';
+    static var configTriggerParameterName = 'EnableCompareSection';
+    static var configDistributionTriggerParameterName = 'EnableCompareDistribution';
+    static var configCompareQuestionsParameterName = 'CompareQuestions';
+    static var parameterTypeQuestion = 'Question';
+    static var parameterTypeDistribution = 'Distribution';
 
     /**
-     * Get the list of compare question ids by type
+     * Get the list of compare question ids
      * @param {object} context object {state: state, report: report, log: log}
-     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
      * @returns {Array} - array of questions to filter survey data by (not page specific)
      */
-    static function GetCompareQuestionIdsByType (context, parameterType) {
+    static function GetCompareQuestionIds (context) {
 
         var log = context.log;
-        return DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
+        return DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsParameterName);
     }
 
     /**
-     * Get info (name prefix and number of parameters) for Compare parameter by type
+     * Hide compare parameter placeholder if there're no options
      * @param {object} context object {state: state, report: report, pageContext: pageContext, log: log}
-     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
-     * @param {string} parameterNumber number of scripted filter
-     * @returns {boolean} indicates if filter exists
-     */
-    static function GetCompareParameterInfo(parameterType) {
-        if (parameterType === 'BreakBy') {
-            return {
-                numberOfParameters: CompareUtil.numberOfBreakByParameters,
-                parameterNamePrefix: CompareUtil.breakByParameterNamePrefix
-            };
-        } else if (parameterType === 'Filter') {
-            return {
-                numberOfParameters: CompareUtil.numberOfFilterParameters,
-                parameterNamePrefix: CompareUtil.filterParameterNamePrefix
-            };
-        }
-    }
-
-    /**
-     * Hide compare parameter placeholder if there're no options.
-     * @param {object} context object {state: state, report: report, pageContext: pageContext, log: log}
-     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
+     * @param {string} parameterType type ('Question' or 'Distribution') of scripted filter
      * @param {string} parameterNumber number of scripted filter
      * @returns {boolean} indicates if filter exists
      */
     static function hideScriptedCompareParameterByOrder(context, parameterType, parameterNumber) {
 
         var log = context.log;
-        var parameterNamePrefix = GetCompareParameterInfo(parameterType).parameterNamePrefix;
-        var optionsList = ParamUtil.GetParameterOptions(context, parameterNamePrefix + parameterNumber);
-
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
+
         try {
-            var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'EnableCompare' + parameterType + 'Section');
+            var parameterName = parameterType === CompareUtil.parameterTypeQuestion
+                ? CompareUtil.parameterNamePrefix + parameterNumber
+                : (parameterType == CompareUtil.parameterTypeDistribution
+                    ? CompareUtil.distributionParameterName
+                    : '');
+            var optionsList = ParamUtil.GetParameterOptions(context,  parameterName);
+        }
+        catch (e) {
+            throw new Error('CompareUtil - something wrong with parameter name or options');
+        }
+
+        try {
+            var parameterEnableName = parameterType === CompareUtil.parameterTypeQuestion
+                ? CompareUtil.configTriggerParameterName
+                : (parameterType == CompareUtil.parameterTypeDistribution
+                    ? CompareUtil.configDistributionTriggerParameterName
+                    : ''); // '' is not checked there, because if there's an error with parameterType it will be checked before in previous catch
+            var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, parameterEnableName);
         }
         catch (e) {
             return true; // if there's no such property for current page in Config
@@ -64,16 +60,15 @@ class CompareUtil {
     }
 
     /**
-     * Get scripted compare parameter title.
+     * Get scripted compare parameter title
      * @param {object} context object {state: state, report: report, log: log}
-     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
      * @param {string} parameterNumber number of scripted Compare parameter by type
      * @returns {string} question title
      */
-    static function getScriptedCompareParameterNameByOrder(context, parameterType, parameterNumber) {
+    static function getScriptedCompareParameterNameByOrder(context, parameterNumber) {
 
         var log = context.log;
-        var parametersList = GetCompareQuestionIdsByType(context, parameterType);
+        var parametersList = CompareUtil.GetCompareQuestionIds(context);
 
         if(parametersList.length >= parameterNumber) {
             return QuestionUtil.getQuestionTitle(context, parametersList[parameterNumber-1]);
@@ -98,27 +93,26 @@ class CompareUtil {
     /**
      * Get Compare question id by index and type from Config
      * @param {object} context object {state: state, report: report, log: log}
-     * @param {string} parameterType is used to identify parameter type ('BreakBy' or 'Filter') and choose correct question ids array in Config
      * @param {string} parameterIndex index of parameter in question ids array in Config
      * @returns {string} question id
      */
-    static function getCompareQuestionIdFromConfig(context, parameterType, parameterIndex) {
+    static function getCompareQuestionIdFromConfig(context, parameterIndex) {
         var arrayParameterIndex = parseInt(parameterIndex - 1);
-        var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'Compare' + parameterType + 'Questions');
+        var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsParameterName);
         return arrayParameterIndex < questionIds.length && arrayParameterIndex >= 0 ? questionIds[arrayParameterIndex] : null;
     }
 
     /**
-     * Add Compare break by subheaders to parent header
+     * Add Compare subheaders to parent header
      * @param {object} context object {state: state, report: report, log: log}
      * @param {Header} parentHeader
      * @returns {boolean} indicates if headers for at least one of the parameters have been added
      */
-    static function addCompareBreakByNestedHeaders(context, parentHeader) {
+    static function addCompareNestedHeaders(context, parentHeader) {
         var headersAdded = false;
 
-        for (var i = 1; i <= CompareUtil.numberOfBreakByParameters; i++) {
-            var tempParameterName = CompareUtil.breakByParameterNamePrefix + i;
+        for (var i = 1; i <= CompareUtil.numberOfParameters; i++) {
+            var tempParameterName = CompareUtil.parameterNamePrefix + i;
             if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
                 TableUtil.addBreakByNestedHeader(context, parentHeader, {Id: tempParameterName, Type: 'Answer'});
                 headersAdded = true;
@@ -129,28 +123,7 @@ class CompareUtil {
     }
 
     /**
-     * Returns true if Compare mode is on (at least one of the Compare parameters of that type)
-     * @param {object} context object {state: state, report: report, log: log}
-     * @param {string} parameterType type of scripted filter (only 'BreakBy' or 'Filter')
-     * @returns {boolean} indicates if Compare mode is on
-     **/
-    static function isInCompareModeByType(context, parameterType) {
-        var isInCompareMode = false;
-        var parameterInfo = GetCompareParameterInfo(parameterType);
-
-        for (var i = 1; i <= parameterInfo.numberOfParameters; i++) {
-            var tempParameterName = parameterInfo.parameterNamePrefix + i;
-            if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
-                isInCompareMode = true;
-                break;
-            }
-        }
-
-        return isInCompareMode;
-    }
-
-    /**
-     * Returns true if Compare mode is on (for all types of Compare parameters)
+     * Returns true if Compare mode is on
      * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
      * @returns {boolean} indicates if Compare mode is on
      **/
@@ -158,37 +131,44 @@ class CompareUtil {
         var pageContext = context.pageContext;
         var pageId = pageContext.Items['CurrentPageId'];
 
-        var isInCompareBreakByMode;
+        var isInCompareMode;
         try {
-            isInCompareBreakByMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection')
-                && CompareUtil.isInCompareModeByType(context, 'BreakBy');
+            for (var i = 1; i <= CompareUtil.numberOfParameters; i++) {
+                var tempParameterName = CompareUtil.parameterNamePrefix + i;
+                if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
+                    isInCompareMode = true;
+                    break;
+                }
+            }
+
+            isInCompareMode = isInCompareMode && DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configTriggerParameterName);
         }
         catch(e) {
-            isInCompareBreakByMode = false; // if there's no such property for current page in Config
+            isInCompareMode = false; // if there's no such property for current page in Config
         }
 
-        var isInCompareFilterMode;
+        var isInCompareModeWithDistribution;
         try {
-            isInCompareFilterMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection')
-                && CompareUtil.isInCompareModeByType(context, 'Filter');
+            isInCompareModeWithDistribution = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configTriggerParameterName)
+                && ParamUtil.GetSelectedCodes(context, CompareUtil.distributionParameterName).length > 0;
         }
         catch(e) {
-            isInCompareFilterMode = false; // if there's no such property for current page in Config
+            isInCompareModeWithDistribution = false; // if there's no such property for current page in Config
         }
 
-        return isInCompareBreakByMode || isInCompareFilterMode;
+        return isInCompareMode || isInCompareModeWithDistribution;
     }
 
     /**
-     * Get selected options for all Compare break by parameters
+     * Get selected options for Compare parameters
      * @param {object} context object {state: state, report: report, log: log}
      * @returns {Array} options
      **/
-    static function getSelectedCompareBreakByOptions(context) {
+    static function getSelectedCompareOptions(context) {
         var options = [];
 
-        for (var i = 1; i <= CompareUtil.numberOfBreakByParameters; i++) {
-            var tempParameterName = CompareUtil.breakByParameterNamePrefix + i;
+        for (var i = 1; i <= CompareUtil.numberOfParameters; i++) {
+            var tempParameterName = CompareUtil.parameterNamePrefix + i;
             options = options.concat(ParamUtil.GetSelectedCodes(context, tempParameterName));
         }
 
@@ -196,7 +176,7 @@ class CompareUtil {
     }
 
     /**
-     * Returns true if there's EnableCompare*Section (*: 'BreakBy' or 'Filter') flag for  current page in Config
+     * Returns true if there's EnableCompareSection or EnableDistribution flag for current page in Config
      * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
      * @returns {boolean} isCompareSectionNeeded
      **/
@@ -204,62 +184,49 @@ class CompareUtil {
         var pageContext = context.pageContext;
         var pageId = pageContext.Items['CurrentPageId'];
 
-        var isCompareBreakByNeeded = false;
+        var isCompareNeeded = false;
         try {
-            isCompareBreakByNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareBreakBySection');
+            isCompareNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configTriggerParameterName);
         }
         catch (e) { }
 
-        var isCompareFilterNeeded = false;
+        var isDistributionNeeded = false;
         try {
-            isCompareFilterNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'EnableCompareFilterSection');
+            isDistributionNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configDistributionTriggerParameterName);
         }
         catch (e) { }
 
-        return isCompareBreakByNeeded || isCompareFilterNeeded;
+        return isCompareNeeded || isDistributionNeeded;
     }
 
     /**
-     * Function to generate filter expression for the 'FilterPanel' filter. Filter parameters can be both single and multi selects
+     * Returns array of selected values (label and selected options) for Compare parameters (including Distribution)
      * @param {Object} context
-     * @param {string} parameterType - type of Compare parameter
      * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
      **/
-
-    static function GetCompareParametersValuesByType (context, parameterType) {
+    static function GetCompareParametersValues (context) {
 
         var log = context.log;
 
         var parameterValues = [];
-        var parameters = GetCompareQuestionIdsByType(context, parameterType);
-        var parameterNamePrefix = GetCompareParameterInfo(parameterType).parameterNamePrefix;
+        var parameters = CompareUtil.GetCompareQuestionIds(context);
+        var parameterNamePrefix = CompareUtil.parameterNamePrefix;
 
         for (var i=0; i<parameters.length; i++) {
             // support for multi select. If you need multi-selectors, no code changes are needed, change only parameter setting + ? list css class
             var selectedOptions = ParamUtil.GetSelectedOptions(context, parameterNamePrefix+(i+1));
-            var parameterName = getScriptedCompareParameterNameByOrder(context, parameterType, i+1);
+            var parameterName = CompareUtil.getScriptedCompareParameterNameByOrder(context, i+1);
 
             if(selectedOptions.length>0) {
                 parameterValues.push({Label: parameterName, selectedOptions: selectedOptions});
             }
         }
 
+        var selectedDistributionOptions = ParamUtil.GetSelectedOptions(context, CompareUtil.distributionParameterName);
+        if(selectedDistributionOptions.length>0) {
+            parameterValues.push({Label: CompareUtil.distributionParameterName, selectedOptions: selectedDistributionOptions});
+        }
+
         return parameterValues;
-    }
-
-    /**
-     * Function to generate filter expression for the 'FilterPanel' filter. Filter parameters can be both single and multi selects
-     * @param {Object} context
-     * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
-     **/
-
-    static function GetAllCompareParametersValues (context) {
-
-        var log = context.log;
-
-        var breakByParameterValues = GetCompareParametersValuesByType(context, 'BreakBy');
-        var filterParameterValues = GetCompareParametersValuesByType(context, 'Filter');
-
-        return breakByParameterValues.concat(filterParameterValues);
     }
 }

@@ -67,7 +67,7 @@ class PageKPI {
             row.IsCollapsed = true;
             row.HideHeader = true;
             TableUtil.maskOutNA(context, row);
-            var breakByHeadersAdded = CompareUtil.addCompareBreakByNestedHeaders(context, row);
+            var breakByHeadersAdded = CompareUtil.addCompareNestedHeaders(context, row);
             row.HideHeader = breakByHeadersAdded;
             table.RowHeaders.Add(row);
         }
@@ -220,14 +220,14 @@ class PageKPI {
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
         var Qs = DataSourceUtil.getPagePropertyValueFromConfig (context, pageId, 'KPI');
-        var selectedCompareBreakByOptions = CompareUtil.getSelectedCompareBreakByOptions(context);
+        var selectedCompareOptions = CompareUtil.getSelectedCompareOptions(context);
         var results = [];
         for (var i=0; i < Qs.length; i++) {
             var result = {qid: Qs[i], title: QuestionUtil.getQuestionTitle (context, Qs[i])};
 
             if (!SuppressUtil.isGloballyHidden(context) && report.TableUtils.GetRowValues("KPI:KPI",i+1).length) {
                 var cell : Datapoint;
-                if (selectedCompareBreakByOptions.length <= 0) {
+                if (selectedCompareOptions.length <= 0) {
                     cell = report.TableUtils.GetCellValue("KPI:KPI",i+1,1);
                     if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                         result.score = parseFloat(cell.Value.toFixed(Config.Decimal));
@@ -236,12 +236,12 @@ class PageKPI {
                     }
                 } else {
                     result.multiScore = [];
-                    for (var j = 0; j < selectedCompareBreakByOptions.length; j++) {
-                        cell = report.TableUtils.GetCellValue("KPI:KPI",i*selectedCompareBreakByOptions.length+j+1,1);
+                    for (var j = 0; j < selectedCompareOptions.length; j++) {
+                        cell = report.TableUtils.GetCellValue("KPI:KPI",i*selectedCompareOptions.length+j+1,1);
                         if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                             result.multiScore.push({
                                 value: parseFloat(cell.Value.toFixed(Config.Decimal)),
-                                name: selectedCompareBreakByOptions[j]
+                                name: selectedCompareOptions[j]
                             });
                         }
                     }

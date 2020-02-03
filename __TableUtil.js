@@ -303,9 +303,9 @@ class TableUtil{
             var questionId;
             // change second parameter of slice function if Compare parameters have more than 9 copies
             var parameterIdWithoutNumber = breakByParameter.slice(0, -1);
-            if (parameterIdWithoutNumber === CompareUtil.breakByParameterNamePrefix) {
+            if (parameterIdWithoutNumber === CompareUtil.parameterNamePrefix) {
                 // change third parameter of getCompareQuestionIdFromConfig function if Compare parameters have more than 9 copies
-                questionId = CompareUtil.getCompareQuestionIdFromConfig(context, 'BreakBy', breakByParameter[breakByParameter.length - 1]);
+                questionId = CompareUtil.getCompareQuestionIdFromConfig(context, breakByParameter[breakByParameter.length - 1]);
             }
 
             var questionInfo = QuestionUtil.getQuestionInfo(context, questionId);
@@ -356,7 +356,7 @@ class TableUtil{
         hsAvg.Statistics.Avg = true;
         hsAvg.Statistics.Count = false;
         hsAvg.HideHeader = !Export.isExcelExportMode(context);
-        var breakByHeadersAdded = CompareUtil.addCompareBreakByNestedHeaders(context, hsAvg);
+        var breakByHeadersAdded = CompareUtil.addCompareNestedHeaders(context, hsAvg);
         hsAvg.HideData = breakByHeadersAdded;
         hsAvg.Texts.Average = new Label(report.CurrentLanguage, qTitle+(!breakByHeadersAdded ? (' ('+TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')+')') : ''));
         row.SubHeaders.Add(hsAvg);
