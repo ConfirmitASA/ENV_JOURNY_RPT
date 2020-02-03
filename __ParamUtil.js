@@ -349,8 +349,6 @@ class ParamUtil {
       parameterInfo = generateResourceObjectForFilterPanelParameter(context, parameterId);
     } else if (parameterId.indexOf(CompareUtil.parameterNamePrefix)===0) {
       parameterInfo = generateResourceObjectForCompareParameter(context, parameterId);
-    } else if (parameterId.indexOf(CompareUtil.distributionParameterName)===0) {
-      parameterInfo = generateResourceObjectForCompareDistributionParameter(context, parameterId);
     } else {
       parameterInfo = reportParameterValuesMap[parameterId];
     }
@@ -635,7 +633,7 @@ class ParamUtil {
 
     // change second parameter of slice function if Compare parameters have more than 9 copies
     var parameterIdWithoutNumber = parameterId.slice(0, -1);
-    if (parameterIdWithoutNumber === CompareUtil.parameterNamePrefix || parameterIdWithoutNumber === CompareUtil.filterParameterNamePrefix) {
+    if (parameterIdWithoutNumber === CompareUtil.parameterNamePrefix) {
       CompareUtil.setMaskForCompareParameter(context);
     }
   }
