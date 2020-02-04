@@ -24,7 +24,10 @@ class ParamUtil {
     'p_CatDD_TimeUnitNoDefault':    { propertyName: 'TimeUnitsNoDefaultValue',   type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
     'p_DisplayMode':                { propertyName: 'DisplayMode',               type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
     'p_ResetSortedHitlist':         { propertyName: 'ResetSortedHitlist',        type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
-    'p_Distribution':               { propertyName: 'Distribution',        		 type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+
+    'p_CompareDistribution':        { propertyName: 'Distribution',        		 type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_CompareScore':               { propertyName: 'Score',        		     type: 'StaticArrayofObjects', locationType: 'TextAndParameterLibrary'},
+    'p_CompareCombinedDistribution': { type: 'ParameterOptionList', locationType: 'CombinationOfParameters', parameterList: ['p_CompareDistribution', 'p_CompareScore'], isQuestionBased: false/*, CachingDisabled: true*/},
 
     'p_Results_BreakBy':      { propertyName: 'BreakVariables',        type: 'QuestionList', locationType: 'Page', page: 'Page_Results'},
     'p_CategoricalDD_BreakBy':{ propertyName: 'BreakVariables',        type: 'QuestionList', locationType: 'Page', page: 'Page_Categorical_'},
@@ -43,7 +46,8 @@ class ParamUtil {
   };
 
   // mandatory parameters can be single or multi. Must have default value when a page opens
-  static var mandatoryPageParameters = ['p_TimeUnitWithDefault', 'p_TimePeriod', 'p_OpenTextQs', 'p_ScoreQs', 'p_TrendQs', 'p_Demographics', 'p_BenchmarkSet', 'p_QsToFilterBy', 'p_WordcloudQs'];
+  static var mandatoryPageParameters = ['p_TimeUnitWithDefault', 'p_TimePeriod', 'p_OpenTextQs', 'p_ScoreQs', 'p_TrendQs',
+                                        'p_Demographics', 'p_BenchmarkSet', 'p_QsToFilterBy', 'p_WordcloudQs'];
 
   // optional parameters are usually multiple. Can be empty by default
   static var optionalPageParameters = ['p_TagQs', 'p_TimeUnitNoDefault', 'p_CatDD_TimeUnitNoDefault']; // we must add them empty option as 1st value instead
@@ -136,9 +140,9 @@ class ParamUtil {
       return DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'BenchmarkSet') ? true : false;
     }
 
-    if(parameterName === CompareUtil.distributionParameterName) {
-      var enableCompareFilterSection = DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'EnableCompareFilterSection');
-      return enableCompareFilterSection ? true : false;
+    if(parameterName === CompareUtil.combinedDistributionParameterName) {
+      var enableCompareCombinedDistribution = DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', CompareUtil.configCombinedDistributionTriggerPropertyName);
+      return enableCompareCombinedDistribution ? true : false;
     }
 
     return true;
@@ -347,7 +351,7 @@ class ParamUtil {
 
     if(parameterId.indexOf('p_ScriptedFilterPanelParameter')===0) {
       parameterInfo = generateResourceObjectForFilterPanelParameter(context, parameterId);
-    } else if (parameterId.indexOf(CompareUtil.parameterNamePrefix)===0) {
+    } else if (parameterId.indexOf(CompareUtil.questionsParameterNamePrefix)===0) {
       parameterInfo = generateResourceObjectForCompareParameter(context, parameterId);
     } else {
       parameterInfo = reportParameterValuesMap[parameterId];
@@ -451,6 +455,10 @@ class ParamUtil {
       return getOptions_CombinationOfQuestionsSelector(context, resource);
     }
 
+    if (type === 'ParameterOptionList') {
+      return getOptions_ParameterList(context, resource);
+    }
+
     throw new Error('ParamUtil.GetParameterOptions: parameter options cannot be defined.');
   }
 
@@ -488,6 +496,11 @@ class ParamUtil {
 
     if(parameterInfo.locationType === 'Compare') {
       return parameterInfo.QId;
+    }
+
+    if (parameterInfo.locationType === 'CombinationOfParameters') {
+      var paramNames = parameterInfo.parameterList;
+      return paramNames;
     }
 
     throw new Error('ParamUtil.getParameterValuesResource: Cannot define parameter value resource by given location.');
@@ -590,6 +603,22 @@ class ParamUtil {
     return parameterOptions;
   }
 
+  /**
+   *@param {object} context
+   *@param {array} array of parameter Ids
+   *@return {array} [{Code: code1, Label: label1}, {Code: code2, Label: label2}, ...]
+   */
+  static private function getOptions_ParameterList(context, parameterNameList) {
+
+    var log = context.log;
+    var combinedOptions = [];
+
+    for (var i = 0; i < parameterNameList.length; i++) {
+      combinedOptions = combinedOptions.concat(ParamUtil.GetParameterOptions(context, parameterNameList[i]));
+    }
+    return combinedOptions;
+  }
+
 
   static function generateResourceObjectForFilterPanelParameter(context, parameterId) {
 
@@ -610,8 +639,8 @@ class ParamUtil {
   static function generateResourceObjectForCompareParameter(context, parameterId) {
 
     var resourceInfo = {};
-    var compareQuestionsList = DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsParameterName);
-    var paramNumber = parseInt(parameterId.substr(CompareUtil.parameterNamePrefix.length, parameterId.length));
+    var compareQuestionsList = CompareUtil.GetCompareQuestionIds(context);
+    var paramNumber = parseInt(parameterId.substr(CompareUtil.questionsParameterNamePrefix.length, parameterId.length));
 
     resourceInfo.type = 'QuestionId';
     resourceInfo.locationType = 'Compare';
@@ -633,7 +662,7 @@ class ParamUtil {
 
     // change second parameter of slice function if Compare parameters have more than 9 copies
     var parameterIdWithoutNumber = parameterId.slice(0, -1);
-    if (parameterIdWithoutNumber === CompareUtil.parameterNamePrefix) {
+    if (parameterIdWithoutNumber === CompareUtil.questionsParameterNamePrefix) {
       CompareUtil.setMaskForCompareParameter(context);
     }
   }

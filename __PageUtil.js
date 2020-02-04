@@ -42,11 +42,6 @@ class PageUtil {
             HierarchyUtil.setDataTable(context);
         }
 
-        // for single-typed first Compare filter
-        if (page.SubmitSource === "ScoreBtn") {
-            state.Parameters[CompareUtil.distributionParameterName] = null;
-        }
-
     }
 
     /*

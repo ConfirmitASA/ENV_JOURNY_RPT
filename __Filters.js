@@ -220,7 +220,7 @@ class Filters {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
     //because Results page in Compare mode have columns that should be filtered now (JOU-112)
-    if (pageId === 'Page_Results' && CompareUtil.isInCompareMode(context)) {
+    if (pageId === 'Page_Results' && CompareUtil.isInCompareCombinedDistributionMode(context)) {
       return '';
     }
 

@@ -1,13 +1,30 @@
 class CompareUtil {
 
-    static var numberOfParameters = 5;
-    static var parameterNamePrefix = 'p_ScriptedCompareParameter';
-    static var distributionParameterName = 'p_Distribution';
-    static var configTriggerParameterName = 'EnableCompareSection';
-    static var configDistributionTriggerParameterName = 'EnableCompareDistribution';
-    static var configCompareQuestionsParameterName = 'CompareQuestions';
+    static var numberOfQuestionParameters = 5;
+
+    static var questionsParameterNamePrefix = 'p_ScriptedCompareQParameter';
+    static var scoreParameterName = 'p_CompareScore';
+    static var distributionParameterName = 'p_CompareDistribution';
+    static var combinedDistributionParameterName = 'p_CompareCombinedDistribution';
+
+    // survey level
+    static var configCompareQuestionsPropertyName = 'CompareQuestions';
+
+    // page level
+    static var configQuestionsTriggerPropertyName = 'EnableCompareQuestionsSection';
+    static var configCombinedDistributionTriggerPropertyName = 'EnableCompareCombinedDistribution';
+
+    // Compare parameter types
     static var parameterTypeQuestion = 'Question';
-    static var parameterTypeDistribution = 'Distribution';
+    static var parameterTypeCombinedDistribution = 'CombinedDistribution';
+    // TODO (if needed): 'Distribution' and 'Score' Compare types
+
+    // Compare mode types
+    static var standardCompareModeTypeName = 'StandardMode';
+    static var scoreCompareModeTypeName = 'ScoreMode';
+    static var distributionCompareModeTypeName = 'DistributionMode';
+
+    static var distributionTextPropertyName = 'Distribution';
 
     /**
      * Get the list of compare question ids
@@ -17,13 +34,13 @@ class CompareUtil {
     static function GetCompareQuestionIds (context) {
 
         var log = context.log;
-        return DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsParameterName);
+        return DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsPropertyName);
     }
 
     /**
      * Hide compare parameter placeholder if there're no options
      * @param {object} context object {state: state, report: report, pageContext: pageContext, log: log}
-     * @param {string} parameterType type ('Question' or 'Distribution') of scripted filter
+     * @param {string} parameterType type ('Question' or 'CombinedDistribution') of scripted filter
      * @param {string} parameterNumber number of scripted filter
      * @returns {boolean} indicates if filter exists
      */
@@ -32,25 +49,35 @@ class CompareUtil {
         var log = context.log;
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
-        try {
-            var parameterName = parameterType === CompareUtil.parameterTypeQuestion
-                ? CompareUtil.parameterNamePrefix + parameterNumber
-                : (parameterType == CompareUtil.parameterTypeDistribution
-                    ? CompareUtil.distributionParameterName
-                    : '');
-            var optionsList = ParamUtil.GetParameterOptions(context,  parameterName);
-        }
-        catch (e) {
-            throw new Error('CompareUtil - something wrong with parameter name or options');
+        var parameterName;
+        switch (parameterType) {
+            case CompareUtil.parameterTypeQuestion:
+                parameterName = CompareUtil.questionsParameterNamePrefix + parameterNumber;
+                break;
+            case CompareUtil.parameterTypeCombinedDistribution:
+                parameterName = CompareUtil.combinedDistributionParameterName;
+                break;
         }
 
         try {
-            var parameterEnableName = parameterType === CompareUtil.parameterTypeQuestion
-                ? CompareUtil.configTriggerParameterName
-                : (parameterType == CompareUtil.parameterTypeDistribution
-                    ? CompareUtil.configDistributionTriggerParameterName
-                    : ''); // '' is not checked there, because if there's an error with parameterType it will be checked before in previous catch
-            var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, parameterEnableName);
+            var optionsList = ParamUtil.GetParameterOptions(context,  parameterName);
+        }
+        catch (e) {
+            throw new Error('CompareUtil.hideScriptedCompareParameterByOrder: something wrong with parameter name - ' + parameterName + ' - or its options');
+        }
+
+        var parameterEnablePropertyName;
+        switch (parameterType) {
+            case CompareUtil.parameterTypeQuestion:
+                parameterEnablePropertyName = CompareUtil.configQuestionsTriggerPropertyName;
+                break;
+            case CompareUtil.parameterTypeCombinedDistribution:
+                parameterEnablePropertyName = CompareUtil.configCombinedDistributionTriggerPropertyName;
+                break;
+        }
+
+        try {
+            var isThisTypeOfParameterEnabled = DataSourceUtil.getPropertyValueFromConfig(context, pageId, parameterEnablePropertyName);
         }
         catch (e) {
             return true; // if there's no such property for current page in Config
@@ -62,23 +89,32 @@ class CompareUtil {
     /**
      * Get scripted compare parameter title
      * @param {object} context object {state: state, report: report, log: log}
+     * @param {string} parameterType type ('Question' or 'CombinedDistribution') of scripted filter
      * @param {string} parameterNumber number of scripted Compare parameter by type
      * @returns {string} question title
      */
-    static function getScriptedCompareParameterNameByOrder(context, parameterNumber) {
+    static function getScriptedCompareParameterNameByOrder(context, parameterType, parameterNumber) {
 
         var log = context.log;
-        var parametersList = CompareUtil.GetCompareQuestionIds(context);
 
-        if(parametersList.length >= parameterNumber) {
-            return QuestionUtil.getQuestionTitle(context, parametersList[parameterNumber-1]);
+        switch (parameterType) {
+            case CompareUtil.parameterTypeQuestion:
+                var parametersList = CompareUtil.GetCompareQuestionIds(context);
+
+                if(parametersList.length >= parameterNumber) {
+                    return QuestionUtil.getQuestionTitle(context, parametersList[parameterNumber-1]);
+                }
+                break;
+
+            case CompareUtil.parameterTypeCombinedDistribution:
+                return TextAndParameterUtil.getTextTranslationByKey(context, CompareUtil.distributionTextPropertyName);
         }
 
         return '';
     }
 
     /**
-     * Set mask (NA) for Compare parameter.
+     * Set mask (NA) for Compare parameter
      * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext, mask: mask}
      */
     static function setMaskForCompareParameter(context) {
@@ -98,7 +134,7 @@ class CompareUtil {
      */
     static function getCompareQuestionIdFromConfig(context, parameterIndex) {
         var arrayParameterIndex = parseInt(parameterIndex - 1);
-        var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsParameterName);
+        var questionIds = DataSourceUtil.getSurveyPropertyValueFromConfig(context, CompareUtil.configCompareQuestionsPropertyName);
         return arrayParameterIndex < questionIds.length && arrayParameterIndex >= 0 ? questionIds[arrayParameterIndex] : null;
     }
 
@@ -111,8 +147,8 @@ class CompareUtil {
     static function addCompareNestedHeaders(context, parentHeader) {
         var headersAdded = false;
 
-        for (var i = 1; i <= CompareUtil.numberOfParameters; i++) {
-            var tempParameterName = CompareUtil.parameterNamePrefix + i;
+        for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
+            var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
             if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
                 TableUtil.addBreakByNestedHeader(context, parentHeader, {Id: tempParameterName, Type: 'Answer'});
                 headersAdded = true;
@@ -133,30 +169,87 @@ class CompareUtil {
 
         var isInCompareMode;
         try {
-            for (var i = 1; i <= CompareUtil.numberOfParameters; i++) {
-                var tempParameterName = CompareUtil.parameterNamePrefix + i;
-                if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
-                    isInCompareMode = true;
-                    break;
+            isInCompareMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configQuestionsTriggerPropertyName);
+            if (isInCompareMode) {
+                isInCompareMode = false;
+                for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
+                    var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
+                    if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
+                        isInCompareMode = true;
+                        break;
+                    }
                 }
             }
-
-            isInCompareMode = isInCompareMode && DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configTriggerParameterName);
         }
         catch(e) {
             isInCompareMode = false; // if there's no such property for current page in Config
         }
 
-        var isInCompareModeWithDistribution;
+        var isInCompareModeWithCombinedDistribution;
         try {
-            isInCompareModeWithDistribution = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configTriggerParameterName)
-                && ParamUtil.GetSelectedCodes(context, CompareUtil.distributionParameterName).length > 0;
+            isInCompareModeWithCombinedDistribution = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName)
+                && ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName).length > 0;
         }
         catch(e) {
-            isInCompareModeWithDistribution = false; // if there's no such property for current page in Config
+            isInCompareModeWithCombinedDistribution = false; // if there's no such property for current page in Config
         }
 
-        return isInCompareMode || isInCompareModeWithDistribution;
+        return isInCompareMode || isInCompareModeWithCombinedDistribution;
+    }
+
+    /**
+     * Returns true if Compare typed mode is on
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
+     * @param {string} compareModeType type ('StandardMode', 'ScoreMode', 'DistributionMode') of Compare mode
+     * @returns {boolean} indicates if Compare mode is on
+     **/
+    static function isInCompareModeByType(context, compareModeType) {
+        var pageContext = context.pageContext;
+        var pageId = pageContext.Items['CurrentPageId'];
+
+        var isInCompareTypedMode;
+        try {
+            switch (compareModeType) {
+                case CompareUtil.standardCompareModeTypeName:
+                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configQuestionsTriggerPropertyName);
+                    if (isInCompareTypedMode) {
+                        isInCompareTypedMode = false;
+                        for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
+                            var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
+                            if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
+                                isInCompareTypedMode = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+
+                case CompareUtil.scoreCompareModeTypeName:
+                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName)
+                        && ParamUtil.GetSelectedCodes(context, CompareUtil.scoreParameterName).length > 0;
+                    break;
+
+                case CompareUtil.distributionCompareModeTypeName:
+                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName)
+                        && ParamUtil.GetSelectedCodes(context, CompareUtil.distributionParameterName).length > 0;
+                    break;
+            }
+        }
+        catch(e) {
+            isInCompareTypedMode = false; // if there's no such property for current page in Config
+        }
+
+        return isInCompareTypedMode;
+    }
+
+
+    /**
+     * Returns true if Compare CombinedDistribution mode is on
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
+     * @returns {boolean} indicates if Compare mode is on
+     **/
+    static function isInCompareCombinedDistributionMode(context) {
+        return CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName) || CompareUtil.isInCompareModeByType(context, CompareUtil.distributionCompareModeTypeName);
     }
 
     /**
@@ -164,11 +257,11 @@ class CompareUtil {
      * @param {object} context object {state: state, report: report, log: log}
      * @returns {Array} options
      **/
-    static function getSelectedCompareOptions(context) {
+    static function getSelectedCompareQuestionsOptions(context) {
         var options = [];
 
-        for (var i = 1; i <= CompareUtil.numberOfParameters; i++) {
-            var tempParameterName = CompareUtil.parameterNamePrefix + i;
+        for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
+            var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
             options = options.concat(ParamUtil.GetSelectedCodes(context, tempParameterName));
         }
 
@@ -176,7 +269,7 @@ class CompareUtil {
     }
 
     /**
-     * Returns true if there's EnableCompareSection or EnableDistribution flag for current page in Config
+     * Returns true if there's EnableCompareQuestionsSection or EnableCompareCombinedDistribution flag for current page in Config
      * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
      * @returns {boolean} isCompareSectionNeeded
      **/
@@ -186,17 +279,17 @@ class CompareUtil {
 
         var isCompareNeeded = false;
         try {
-            isCompareNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configTriggerParameterName);
+            isCompareNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configQuestionsTriggerPropertyName);
         }
         catch (e) { }
 
-        var isDistributionNeeded = false;
+        var isCombinedDistributionNeeded = false;
         try {
-            isDistributionNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configDistributionTriggerParameterName);
+            isCombinedDistributionNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName);
         }
         catch (e) { }
 
-        return isCompareNeeded || isDistributionNeeded;
+        return isCompareNeeded || isCombinedDistributionNeeded;
     }
 
     /**
@@ -210,21 +303,21 @@ class CompareUtil {
 
         var parameterValues = [];
         var parameters = CompareUtil.GetCompareQuestionIds(context);
-        var parameterNamePrefix = CompareUtil.parameterNamePrefix;
+        var parameterNamePrefix = CompareUtil.questionsParameterNamePrefix;
 
         for (var i=0; i<parameters.length; i++) {
             // support for multi select. If you need multi-selectors, no code changes are needed, change only parameter setting + ? list css class
             var selectedOptions = ParamUtil.GetSelectedOptions(context, parameterNamePrefix+(i+1));
-            var parameterName = CompareUtil.getScriptedCompareParameterNameByOrder(context, i+1);
+            var parameterName = CompareUtil.getScriptedCompareParameterNameByOrder(context, CompareUtil.parameterTypeQuestion, i+1);
 
             if(selectedOptions.length>0) {
                 parameterValues.push({Label: parameterName, selectedOptions: selectedOptions});
             }
         }
 
-        var selectedDistributionOptions = ParamUtil.GetSelectedOptions(context, CompareUtil.distributionParameterName);
-        if(selectedDistributionOptions.length>0) {
-            parameterValues.push({Label: CompareUtil.distributionParameterName, selectedOptions: selectedDistributionOptions});
+        var selectedCombinedDistributionOptions = ParamUtil.GetSelectedOptions(context, CompareUtil.combinedDistributionParameterName);
+        if(selectedCombinedDistributionOptions.length>0) {
+            parameterValues.push({Label: CompareUtil.getScriptedCompareParameterNameByOrder(context, CompareUtil.parameterTypeCombinedDistribution), selectedOptions: selectedCombinedDistributionOptions});
         }
 
         return parameterValues;

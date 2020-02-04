@@ -112,7 +112,7 @@ class PageKPI {
         var state = context.state;
 
         // charts are excluded from Excel exports
-        if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport)
+        if (Export.isExcelExportMode(context))
             return true;
 
         return SuppressUtil.isGloballyHidden(context);
@@ -169,7 +169,7 @@ class PageKPI {
             return true;
         }
 
-        if (CompareUtil.isInCompareMode(context)) {
+        if (CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
             return true;
         }
 
@@ -220,7 +220,7 @@ class PageKPI {
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
         var Qs = DataSourceUtil.getPagePropertyValueFromConfig (context, pageId, 'KPI');
-        var selectedCompareOptions = CompareUtil.getSelectedCompareOptions(context);
+        var selectedCompareOptions = CompareUtil.getSelectedCompareQuestionsOptions(context);
         var results = [];
         for (var i=0; i < Qs.length; i++) {
             var result = {qid: Qs[i], title: QuestionUtil.getQuestionTitle (context, Qs[i])};
@@ -298,9 +298,9 @@ class PageKPI {
         var kpiResults = PageKPI.getKPIResult(context);
         for (var i=0; i<kpiResults.length; i++) {
 
-            if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport) {
+            if (Export.isExcelExportMode(context)) {
 
-                if (CompareUtil.isInCompareMode(context)) {
+                if (CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
                     text.Output.Append(kpiResults[i].title + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Avg') + '): ' + System.Environment.NewLine);
                     for (var j = 0; j < kpiResults[i].multiScore.length; j++) {
                         text.Output.Append('    ' + kpiResults[i].multiScore[j].name + ' - ' + kpiResults[i].multiScore[j].value + System.Environment.NewLine);

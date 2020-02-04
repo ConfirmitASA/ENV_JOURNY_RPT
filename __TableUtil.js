@@ -301,11 +301,11 @@ class TableUtil{
         if(breakByType === 'Answer') { // break by question's answer
 
             var questionId;
-            // change second parameter of slice function if Compare parameters have more than 9 copies
-            var parameterIdWithoutNumber = breakByParameter.slice(0, -1);
-            if (parameterIdWithoutNumber === CompareUtil.parameterNamePrefix) {
-                // change third parameter of getCompareQuestionIdFromConfig function if Compare parameters have more than 9 copies
-                questionId = CompareUtil.getCompareQuestionIdFromConfig(context, breakByParameter[breakByParameter.length - 1]);
+            var parameterIndex = breakByParameter[breakByParameter.length - 1];
+            try {
+                questionId = CompareUtil.getCompareQuestionIdFromConfig(context, parameterIndex);
+            } catch(e) {
+                throw new Error('TableUtil.addBreakByNestedHeader: there is no question with such Compare parameter index - ' + parameterIndex);
             }
 
             var questionInfo = QuestionUtil.getQuestionInfo(context, questionId);

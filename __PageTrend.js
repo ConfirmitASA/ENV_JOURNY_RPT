@@ -81,7 +81,7 @@ class PageTrend {
         var state = context.state;
 
         // charts are excluded from Excel exports
-        if (state.ReportExecutionMode == ReportExecutionMode.ExcelExport)
+        if (Export.isExcelExportMode(context))
             return true;
 
         return SuppressUtil.isGloballyHidden(context);

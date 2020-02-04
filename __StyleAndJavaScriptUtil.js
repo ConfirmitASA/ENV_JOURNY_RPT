@@ -342,7 +342,7 @@ class StyleAndJavaScriptUtil {
       css_string += '.card__verbatim-container tbody tr:not(:nth-last-child(-n+' + numberOfVerbatimComments + ')) { display: none; }';
     }
 
-    if(CompareUtil.isInCompareMode(context)) {
+    if(CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
       css_string += '.highcharts-point { fill: transparent; stroke: transparent; }';
       if (pageContext.Items['CurrentPageId'] === 'KPI') {
         css_string += '.card_type_verbatim { display: none; }';
