@@ -1,5 +1,25 @@
 class PageResults {
 
+  /*
+* Add distribution postfix ('Score' or codes) to table title
+* @param {object} context: {state: state, report: report, log: log, table: table, pageContext: pageContext, suppressSettings: suppressSettings}
+*/
+  static function addDistributionPostfixToTitle(context) {
+    var text = context.text;
+
+    if (CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName)) {
+      text.Output.Append(' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Score') + ')');
+    } else if(CompareUtil.isInCompareModeByType(context, CompareUtil.distributionCompareModeTypeName)) {
+      var distributionOptions = ParamUtil.GetSelectedOptions(context, CompareUtil.combinedDistributionParameterName);
+      if (distributionOptions && distributionOptions.length > 0) {
+        var distributionLabels = [];
+        for (var i = 0; i < distributionOptions.length; i++) {
+          distributionLabels.push(distributionOptions[i].Label);
+        }
+        text.Output.Append(' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Distribution') + ' ' + distributionLabels.join(', ') + ')');
+      }
+    }
+  }
 
   /*
 * Assemble Statements table
