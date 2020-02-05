@@ -21,7 +21,6 @@ class CondFormatUtil {
             if (i==0) c1.Expression = (colors[i].conditionBody ? colors[i].conditionBody : 'cellv(col,row)') + '==emptyv()';
             else if (colors[i].condition) c1.Expression = (colors[i].conditionBody ? colors[i].conditionBody : 'cellv(col,row)') + colors[i].condition;
             else c1.Expression = 'true';
-            context.log.LogDebug(c1.Expression);
             area.AddCondition(c1);
         }
 
