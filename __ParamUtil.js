@@ -346,7 +346,7 @@ class ParamUtil {
     var state = context.state;
     var report = context.report;
     var log = context.log;
-    var parameterId = context.hasOwnProperty('parameter') ? context.parameter.ParameterId : parameterName;
+    var parameterId = parameterName || context.parameter.ParameterId;
     var parameterInfo = {}; //where to take parameter values from
 
     if(parameterId.indexOf('p_ScriptedFilterPanelParameter')===0) {
