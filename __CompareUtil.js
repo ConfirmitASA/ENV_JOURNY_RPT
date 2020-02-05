@@ -26,6 +26,8 @@ class CompareUtil {
 
     static var distributionTextPropertyName = 'Distribution';
 
+    static var scoreCode = '_other';
+
     /**
      * Get the list of compare question ids
      * @param {object} context object {state: state, report: report, log: log}
@@ -225,13 +227,31 @@ class CompareUtil {
                     break;
 
                 case CompareUtil.scoreCompareModeTypeName:
-                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName)
-                        && ParamUtil.GetSelectedCodes(context, CompareUtil.scoreParameterName).length > 0;
+                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName);
+                    if (isInCompareTypedMode) {
+                        var selectedCodesForScore: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
+                        if (selectedCodesForScore.length <= 0) {
+                            isInCompareTypedMode = false;
+                            break;
+                        }
+                        var selectedCodesForScoreArrayList: ArrayList = new ArrayList();
+                        selectedCodesForScoreArrayList.AddRange(selectedCodesForScore);
+                        isInCompareTypedMode = selectedCodesForScoreArrayList.IndexOf(CompareUtil.scoreCode) >= 0
+                    }
                     break;
 
                 case CompareUtil.distributionCompareModeTypeName:
-                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName)
-                        && ParamUtil.GetSelectedCodes(context, CompareUtil.distributionParameterName).length > 0;
+                    isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName);
+                    if (isInCompareTypedMode) {
+                        var selectedCodesForDistribution: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
+                        if (selectedCodesForDistribution.length <= 0) {
+                            isInCompareTypedMode = false;
+                            break;
+                        }
+                        var selectedCodesForDistributionArrayList: ArrayList = new ArrayList();
+                        selectedCodesForDistributionArrayList.AddRange(selectedCodesForDistribution);
+                        isInCompareTypedMode = selectedCodesForDistributionArrayList.IndexOf(CompareUtil.scoreCode) < 0
+                    }
                     break;
             }
         }
@@ -253,7 +273,7 @@ class CompareUtil {
     }
 
     /**
-     * Get selected options for Compare parameters
+     * Get selected options for Compare Question parameters
      * @param {object} context object {state: state, report: report, log: log}
      * @returns {Array} options
      **/
@@ -266,6 +286,15 @@ class CompareUtil {
         }
 
         return options;
+    }
+
+    /**
+     * Get selected codes for Compare CombinedDistribution parameter
+     * @param {object} context object {state: state, report: report, log: log}
+     * @returns {Array} options
+     **/
+    static function getSelectedCompareCombinedDistributionCodes(context) {
+        return ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
     }
 
     /**
@@ -321,5 +350,19 @@ class CompareUtil {
         }
 
         return parameterValues;
+    }
+
+    /**
+     * Returns array of all codes for Distribution from TextLibrary
+     * @param {Object} context
+     * @returns {Array} Array of codes
+     **/
+    static function GetAllDistributionCodesFromTextLibrary(context) {
+        var distributionOptions = TextAndParameterUtil.getParameterValuesByKey(CompareUtil.distributionTextPropertyName);
+        var codes = [];
+        for (var i = 0; i < distributionOptions.length; i++) {
+            codes = codes.concat(distributionOptions[i].AnswerCodes);
+        }
+        return codes;
     }
 }

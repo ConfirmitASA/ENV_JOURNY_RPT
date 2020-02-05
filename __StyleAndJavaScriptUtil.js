@@ -108,7 +108,19 @@ class StyleAndJavaScriptUtil {
 
 
     /* NEW FOR REDESIGN */
-    properties.push('isInCompareMode: '+JSON.stringify(CompareUtil.isInCompareMode(context)));
+
+    var isInCompareStandardMode = CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName);
+    var isInCompareScoreMode = CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName);
+    var isInCompareDistributionMode = CompareUtil.isInCompareModeByType(context, CompareUtil.distributionCompareModeTypeName);
+    properties.push('isInCompareMode: '+JSON.stringify(isInCompareStandardMode || isInCompareScoreMode || isInCompareDistributionMode));
+    var compareModeType = isInCompareStandardMode
+      ? CompareUtil.standardCompareModeTypeName
+      : isInCompareScoreMode
+        ? CompareUtil.scoreCompareModeTypeName
+        : isInCompareDistributionMode
+          ? CompareUtil.distributionCompareModeTypeName
+          : undefined;
+    compareModeType && properties.push('compareModeType: '+JSON.stringify(compareModeType));
 
     properties.push('logoLink:'+JSON.stringify(Config.logo));
 

@@ -61,7 +61,7 @@ class PageResults {
     var log = context.log;
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
-    if(CompareUtil.isInCompareMode(context)) {
+    if(CompareUtil.isInCompareCombinedDistributionMode(context)) {
       PageResults.tableStatements_AddColumnsInCompareMode(context);
     } else {
       PageResults.tableStatements_AddColumns_Banner0(context);
@@ -606,13 +606,7 @@ class PageResults {
     var countLabel = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
     var scoreLabel = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
-    var distributionOptions = TextAndParameterUtil.getParameterValuesByKey('Distribution');
-    var codesCount = 0; // we assume that Distribution has all codes
-    for (var i = 0; i < distributionOptions.length; i++) {
-      codesCount += distributionOptions[i].AnswerCodes.length;
-    }
-
-    var selectedDistributionsCount = ParamUtil.GetSelectedCodes(context, "p_Distribution").length;
+    var selectedDistributionsCount = CompareUtil.getSelectedCompareCombinedDistributionCodes(context).length;
 
     var hpSupFormula = PageResults.createSuppressFormulaForHeader(context, 1, 2, selectedDistributionsCount, hpLabel, true);
     var countSupFormula = PageResults.createSuppressFormulaForHeader(context, 2, 2, selectedDistributionsCount, countLabel);
@@ -675,8 +669,12 @@ class PageResults {
   static function addDistributionBreakBy_ForCompare(context) {
 
     var log = context.log;
-    // temp until it is clear what compare filtering really is
-    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_Distribution").join(',');
+
+    var selectedDistributionCodesArray = CompareUtil.getSelectedCompareCombinedDistributionCodes(context);
+    var selectedDistributionCodes = CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName)
+        ? CompareUtil.GetAllDistributionCodesFromTextLibrary(context).join(',')
+        : selectedDistributionCodesArray.join(',');
+
     var recId = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'DistributionRecodingId');
     var catForMask: HeaderCategories = new HeaderCategories();
 
@@ -726,14 +724,18 @@ class PageResults {
     catForScore.HideData = true;
     TableUtil.maskOutNA(context, catForScore);
 
-    var distributionOptions = TextAndParameterUtil.getParameterValuesByKey('Distribution');
-    var selectedDistributionCodes = ParamUtil.GetSelectedCodes(context, "p_Distribution").join(',');
-    var selectedDistributionOptions = [];
+    var distributionOptions = TextAndParameterUtil.getParameterValuesByKey(CompareUtil.distributionTextPropertyName);
+    var selectedDistributionCodesArray: String[] = CompareUtil.getSelectedCompareCombinedDistributionCodes(context);
+    selectedDistributionCodesArray = CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName)
+        ? CompareUtil.GetAllDistributionCodesFromTextLibrary(context)
+        : selectedDistributionCodesArray;
 
+    var selectedDistributionOptions = [];
     var codesCount = 0; // we assume that Distribution has all codes
+    var selectedDistributionCodesArrayList: ArrayList = new ArrayList();
+    selectedDistributionCodesArrayList.AddRange(selectedDistributionCodesArray);
     for (var i = 0; i < distributionOptions.length; i++) {
-      // this condition works only if codes are < 10
-      if (selectedDistributionCodes.indexOf(distributionOptions[i].Code) >= 0) {
+      if (selectedDistributionCodesArrayList.IndexOf(distributionOptions[i].Code) >= 0) {
         selectedDistributionOptions.push(distributionOptions[i]);
       }
       codesCount += distributionOptions[i].AnswerCodes.length;
