@@ -626,7 +626,9 @@ class PageResults {
     var countLabel = TextAndParameterUtil.getLabelByKey(context, 'NumberOfAnswers');
     var scoreLabel = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
-    var selectedDistributionsCount = CompareUtil.getSelectedCompareCombinedDistributionCodes(context).length;
+    var selectedDistributionsCount = CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName)
+        ? TextAndParameterUtil.getParameterValuesByKey(CompareUtil.distributionTextPropertyName).length
+        : CompareUtil.getSelectedCompareCombinedDistributionCodes(context).length;
 
     var hpSupFormula = PageResults.createSuppressFormulaForHeader(context, 1, 2, selectedDistributionsCount, hpLabel, true);
     var countSupFormula = PageResults.createSuppressFormulaForHeader(context, 2, 2, selectedDistributionsCount, countLabel);
@@ -692,7 +694,7 @@ class PageResults {
 
     var selectedDistributionCodesArray = CompareUtil.getSelectedCompareCombinedDistributionCodes(context);
     var selectedDistributionCodes = CompareUtil.isInCompareModeByType(context, CompareUtil.scoreCompareModeTypeName)
-        ? CompareUtil.GetAllDistributionCodesFromTextLibrary(context).join(',')
+        ? CompareUtil.GetAllRecodedDistributionCodesFromTextLibrary(context).join(',')
         : selectedDistributionCodesArray.join(',');
 
     var recId = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'DistributionRecodingId');

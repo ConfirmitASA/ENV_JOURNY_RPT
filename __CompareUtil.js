@@ -365,4 +365,18 @@ class CompareUtil {
         }
         return codes;
     }
+
+    /**
+     * Returns array of all codes (for recoding) for Distribution from TextLibrary
+     * @param {Object} context
+     * @returns {Array} Array of codes
+     **/
+    static function GetAllRecodedDistributionCodesFromTextLibrary(context) {
+        var distributionOptions = TextAndParameterUtil.getParameterValuesByKey(CompareUtil.distributionTextPropertyName);
+        var codes = [];
+        for (var i = 1; i <= distributionOptions.length; i++) {
+            codes.push(i);
+        }
+        return codes;
+    }
 }
