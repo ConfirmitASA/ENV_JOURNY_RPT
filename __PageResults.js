@@ -36,7 +36,10 @@ class PageResults {
 
     PageResults.tableStatements_AddColumns(context, bannerId);
     PageResults.tableStatements_AddRows(context);
-    //setSuppress(context, table, suppressSettings);
+
+    if (!CompareUtil.isInCompareCombinedDistributionMode(context)) {
+      PageResults.setSuppress(context, table, suppressSettings);
+    }
 
     PageResults.tableStatements_ApplyConditionalFormatting(context);
 
