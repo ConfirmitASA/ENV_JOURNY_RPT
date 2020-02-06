@@ -520,22 +520,30 @@ class PageResults {
     var table = context.table;
     var log = context.log;
 
-    if(!CompareUtil.isInCompareMode(context)) {
-      // Score column is bold and has bigger font-size
-      var area: Area = new Area();
-      var condition: Condition = new Condition();
-      condition.Expression = 'true';
-      condition.Style = 'score-column cf-score-column';
+    switch (CompareUtil.getCurrentTypeOfCompareMode(context)) {
+      case '':
+        // Score column is bold and has bigger font-size
+        var area: Area = new Area();
+        var condition: Condition = new Condition();
+        condition.Expression = 'true';
+        condition.Style = 'score-column cf-score-column';
 
-      area.Name = 'Score';
-      area.FromStart = true;
-      area.Indexes = '1';
-      area.RowFormatting = false;
-      area.AddCondition(condition);
+        area.Name = 'Score';
+        area.FromStart = true;
+        area.Indexes = '1';
+        area.RowFormatting = false;
+        area.AddCondition(condition);
 
-      table.ConditionalFormatting.AddArea(area);
-    } else {
-      CondFormatUtil.applyConditionalFormatting(context, 'set1');
+        table.ConditionalFormatting.AddArea(area);
+        break;
+
+      case CompareUtil.scoreCompareModeTypeName:
+        CondFormatUtil.applyConditionalFormatting(context, 'set2');
+        break;
+
+      case CompareUtil.distributionCompareModeTypeName:
+        CondFormatUtil.applyConditionalFormatting(context, 'set3');
+        break;
     }
   }
 

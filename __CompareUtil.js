@@ -262,6 +262,77 @@ class CompareUtil {
         return isInCompareTypedMode;
     }
 
+    /**
+     * Returns current type of Compare mode (if report is in Compare mode)
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
+     * @returns {string} compareModeType type ('StandardMode', 'ScoreMode', 'DistributionMode') of Compare mode or '' if report is not in Compare mode
+     **/
+    static function getCurrentTypeOfCompareMode(context) {
+        var pageContext = context.pageContext;
+        var pageId = pageContext.Items['CurrentPageId'];
+
+        var isInCompareTypedMode;
+
+        try {
+            isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configQuestionsTriggerPropertyName);
+            if (isInCompareTypedMode) {
+                isInCompareTypedMode = false;
+                for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
+                    var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
+                    if (ParamUtil.GetSelectedCodes(context, tempParameterName).length > 0) {
+                        isInCompareTypedMode = true;
+                        break;
+                    }
+                }
+            }
+            if (isInCompareTypedMode) {
+                return CompareUtil.standardCompareModeTypeName;
+            }
+        } catch(e) {
+            isInCompareTypedMode = false; // if there's no such property for current page in Config
+        }
+
+        try {
+            isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName);
+            if (isInCompareTypedMode) {
+                var selectedCodesForScore: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
+                if (selectedCodesForScore.length <= 0) {
+                    isInCompareTypedMode = false;
+                    break;
+                }
+                var selectedCodesForScoreArrayList: ArrayList = new ArrayList();
+                selectedCodesForScoreArrayList.AddRange(selectedCodesForScore);
+                isInCompareTypedMode = selectedCodesForScoreArrayList.IndexOf(CompareUtil.scoreCode) >= 0
+            }
+            if (isInCompareTypedMode) {
+                return CompareUtil.scoreCompareModeTypeName;
+            }
+        } catch(e) {
+            isInCompareTypedMode = false; // if there's no such property for current page in Config
+        }
+
+        try {
+            isInCompareTypedMode = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName);
+            if (isInCompareTypedMode) {
+                var selectedCodesForDistribution: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
+                if (selectedCodesForDistribution.length <= 0) {
+                    isInCompareTypedMode = false;
+                    break;
+                }
+                var selectedCodesForDistributionArrayList: ArrayList = new ArrayList();
+                selectedCodesForDistributionArrayList.AddRange(selectedCodesForDistribution);
+                isInCompareTypedMode = selectedCodesForDistributionArrayList.IndexOf(CompareUtil.scoreCode) < 0
+            }
+            if (isInCompareTypedMode) {
+                return CompareUtil.distributionCompareModeTypeName;
+            }
+        } catch(e) {
+            isInCompareTypedMode = false; // if there's no such property for current page in Config
+        }
+
+        return '';
+    }
+
 
     /**
      * Returns true if Compare CombinedDistribution mode is on
