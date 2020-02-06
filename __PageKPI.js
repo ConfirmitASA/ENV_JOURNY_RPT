@@ -150,7 +150,9 @@ class PageKPI {
         table.Caching.Enabled = false;
         SuppressUtil.setTableSuppress(table, suppressSettings);
 
-        CondFormatUtil.applyConditionalFormatting(context, 'set1');
+        if (CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
+            CondFormatUtil.applyConditionalFormatting(context, 'set1');
+        }
     }
 
     /**

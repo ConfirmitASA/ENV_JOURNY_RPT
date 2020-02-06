@@ -7,8 +7,6 @@ class CondFormatUtil {
      */
     static function applyConditionalFormatting(context, colorSet) {
 
-        if (!CompareUtil.isInCompareCombinedDistributionMode(context)) return;
-
         var formatter : ConditionalFormatting = context.table.ConditionalFormatting;
         var area : Area = new Area();
         area.Name = 'Area 1';
