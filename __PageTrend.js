@@ -65,6 +65,10 @@ class PageTrend {
         table.Decimals = Config.Decimal;
         table.Caching.Enabled = false;
         SuppressUtil.setTableSuppress(table, suppressSettings);
+
+        CondFormatUtil.applyConditionalFormatting(context, 'set1');
+
+        table.RemoveEmptyHeaders.Columns = false;
     }
 
 

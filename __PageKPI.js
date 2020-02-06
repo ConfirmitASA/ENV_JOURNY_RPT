@@ -150,6 +150,7 @@ class PageKPI {
         table.Caching.Enabled = false;
         SuppressUtil.setTableSuppress(table, suppressSettings);
 
+        CondFormatUtil.applyConditionalFormatting(context, 'set1');
     }
 
     /**
