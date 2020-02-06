@@ -298,7 +298,6 @@ class CompareUtil {
                 var selectedCodesForScore: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
                 if (selectedCodesForScore.length <= 0) {
                     isInCompareTypedMode = false;
-                    break;
                 }
                 var selectedCodesForScoreArrayList: ArrayList = new ArrayList();
                 selectedCodesForScoreArrayList.AddRange(selectedCodesForScore);
@@ -317,7 +316,6 @@ class CompareUtil {
                 var selectedCodesForDistribution: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
                 if (selectedCodesForDistribution.length <= 0) {
                     isInCompareTypedMode = false;
-                    break;
                 }
                 var selectedCodesForDistributionArrayList: ArrayList = new ArrayList();
                 selectedCodesForDistributionArrayList.AddRange(selectedCodesForDistribution);
