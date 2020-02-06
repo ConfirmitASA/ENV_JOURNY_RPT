@@ -298,10 +298,11 @@ class CompareUtil {
                 var selectedCodesForScore: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
                 if (selectedCodesForScore.length <= 0) {
                     isInCompareTypedMode = false;
+                } else {
+                    var selectedCodesForScoreArrayList: ArrayList = new ArrayList();
+                    selectedCodesForScoreArrayList.AddRange(selectedCodesForScore);
+                    isInCompareTypedMode = selectedCodesForScoreArrayList.IndexOf(CompareUtil.scoreCode) >= 0;
                 }
-                var selectedCodesForScoreArrayList: ArrayList = new ArrayList();
-                selectedCodesForScoreArrayList.AddRange(selectedCodesForScore);
-                isInCompareTypedMode = selectedCodesForScoreArrayList.IndexOf(CompareUtil.scoreCode) >= 0
             }
             if (isInCompareTypedMode) {
                 return CompareUtil.scoreCompareModeTypeName;
@@ -316,10 +317,11 @@ class CompareUtil {
                 var selectedCodesForDistribution: String[] = ParamUtil.GetSelectedCodes(context, CompareUtil.combinedDistributionParameterName);
                 if (selectedCodesForDistribution.length <= 0) {
                     isInCompareTypedMode = false;
+                } else {
+                    var selectedCodesForDistributionArrayList: ArrayList = new ArrayList();
+                    selectedCodesForDistributionArrayList.AddRange(selectedCodesForDistribution);
+                    isInCompareTypedMode = selectedCodesForDistributionArrayList.IndexOf(CompareUtil.scoreCode) < 0;
                 }
-                var selectedCodesForDistributionArrayList: ArrayList = new ArrayList();
-                selectedCodesForDistributionArrayList.AddRange(selectedCodesForDistribution);
-                isInCompareTypedMode = selectedCodesForDistributionArrayList.IndexOf(CompareUtil.scoreCode) < 0
             }
             if (isInCompareTypedMode) {
                 return CompareUtil.distributionCompareModeTypeName;
