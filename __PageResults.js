@@ -228,6 +228,13 @@ class PageResults {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var scoreType = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'ScoreType');
 
+    var suppressValue = Config.SuppressSettings.TableSuppressValue;
+    var posScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_PositiveCols');
+    var negScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_NegativeCols');
+
+    //Create separate responses column to be able to check it independently
+    var scoreResponses = PageResults.getResponsesColumn(context, true);
+
     scoreType = scoreType.toLowerCase();
 
     if(scoreType === 'avg')	{
@@ -235,15 +242,13 @@ class PageResults {
       // add Score column
       var avg: HeaderFormula = new HeaderFormula();
       avg.Type = FormulaType.Expression;
-      avg.Expression = 'cellv(col+1, row)';
+      avg.Expression = 'if(cellv(col-1,row) = emptyv() OR cellv(col-1,row) < ' + suppressValue + ', emptyv(), cellv(col+1,row))';
       avg.Decimals = 0;
-      // avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
       var score: HeaderStatistics = new HeaderStatistics();
       score.Decimals = 0;
       score.Statistics.Avg = true;
       score.HideData = true;
-      //score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
       if(CompareUtil.isInCompareMode(context) && !Export.isExportMode(context)) {
         avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Total');
@@ -254,9 +259,11 @@ class PageResults {
       }
 
       if(parentHeader) {
+        parentHeader.SubHeaders.Add(scoreResponses);
         parentHeader.SubHeaders.Add(avg);
         parentHeader.SubHeaders.Add(score);
       } else {
+        table.ColumnHeaders.Add(scoreResponses);
         table.ColumnHeaders.Add(avg);
         table.ColumnHeaders.Add(score);
       }
@@ -271,9 +278,8 @@ class PageResults {
       var posScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_PositiveCols');
       var fav: HeaderFormula = new HeaderFormula();
       fav.Type = FormulaType.Expression;
-      fav.Expression = 'cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row)';
+      fav.Expression = 'if(cellv(col-1,row) = emptyv() OR cellv(col-1,row) < ' + suppressValue + ', emptyv(), cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row))';
       fav.Decimals = 0;
-      //fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
 
       //add distribution barChart
       bcCategories.RecodingIdent = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecodingId');
@@ -290,9 +296,11 @@ class PageResults {
       }
 
       if(parentHeader) {
+        parentHeader.SubHeaders.Add(scoreResponses);
         parentHeader.SubHeaders.Add(fav);
         parentHeader.SubHeaders.Add(bcCategories);
       } else {
+        table.ColumnHeaders.Add(scoreResponses);
         table.ColumnHeaders.Add(fav);
         table.ColumnHeaders.Add(bcCategories);
       }
@@ -306,9 +314,8 @@ class PageResults {
       var negScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_NegativeCols');
       var diff: HeaderFormula = new HeaderFormula();
       diff.Type = FormulaType.Expression;
-      diff.Expression = 'cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row) - cellv(col+'+negScoreRecodingCols.join(', row)-cellv(col+')+',row)';
+      diff.Expression = 'if(cellv(col-1,row) = emptyv() OR cellv(col-1,row) < ' + suppressValue + ', emptyv(), cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row) - cellv(col+'+negScoreRecodingCols.join(', row)-cellv(col+')+',row))';
       diff.Decimals = 0;
-      //diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
 
       //add distribution barChart
       bcCategories.RecodingIdent = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecodingId');
@@ -325,9 +332,11 @@ class PageResults {
       }
 
       if(parentHeader) {
+        parentHeader.SubHeaders.Add(scoreResponses);
         parentHeader.SubHeaders.Add(diff);
         parentHeader.SubHeaders.Add(bcCategories);
       } else {
+        table.ColumnHeaders.Add(scoreResponses);
         table.ColumnHeaders.Add(diff);
         table.ColumnHeaders.Add(bcCategories);
       }
@@ -341,10 +350,27 @@ class PageResults {
 *  add base column
 *  @param {object} context: {state: state, report: report, log: log, table: table}
 *  @param {Header} parentHeader - not mandatory
-*  @param {boolean} withPercents - not mandatory
-*  @param {object} recodingInfo - not mandatory, should be used in HeaderCategories instead of showing just Total
 */
-  static function addResponsesColumn(context, parentHeader, withPercents, recodingInfo) {
+  static function addResponsesColumn(context, parentHeader) {
+
+    var table = context.table;
+
+    // add Responses Column
+    var responses = PageResults.getResponsesColumn(context);
+
+    if(parentHeader) {
+      parentHeader.SubHeaders.Add(responses);
+    } else {
+      table.ColumnHeaders.Add(responses);
+    }
+  }
+
+  /*
+*  create base column
+*  @param {object} context: {state: state, report: report, log: log, table: table}
+*  @param {boolean} isHidden - not mandatory
+*/
+  static function getResponsesColumn(context, isHidden) {
 
     var table = context.table;
 
@@ -353,6 +379,7 @@ class PageResults {
     var catForMask: HeaderCategories = new HeaderCategories();
 
     catForMask.HideHeader = true;
+    catForMask.HideData = isHidden;
     TableUtil.maskOutNA(context, catForMask);
 
     catForMask.Mask.Type = MaskType.ShowCodes;
@@ -363,11 +390,10 @@ class PageResults {
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
 
-    if(parentHeader) {
-      parentHeader.SubHeaders.Add(responses);
-    } else {
-      table.ColumnHeaders.Add(responses);
-    }
+    responses.HideHeader = isHidden;
+    responses.HideData = isHidden;
+
+    return responses;
   }
 
 
