@@ -173,6 +173,13 @@ class PageResults {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var scoreType = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'ScoreType');
 
+    var suppressValue = Config.SuppressSettings.TableSuppressValue;
+    var posScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_PositiveCols');
+    var negScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_NegativeCols');
+
+    //Create separate responses column to be able to check it independently
+    var scoreResponses = PageResults.getResponsesColumn(context, true);
+
     scoreType = scoreType.toLowerCase();
 
     if(scoreType === 'avg')	{
@@ -180,7 +187,7 @@ class PageResults {
       // add Score column
       var avg: HeaderFormula = new HeaderFormula();
       avg.Type = FormulaType.Expression;
-      avg.Expression = 'cellv(col+1, row)';
+      avg.Expression = 'if(cellv(col-1,row) = emptyv() OR cellv(col-1,row) < ' + suppressValue + ', emptyv(), cellv(col+1,row))';
       avg.Decimals = 0;
       avg.Title = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
@@ -191,9 +198,11 @@ class PageResults {
       score.Texts.Average = TextAndParameterUtil.getLabelByKey(context, 'Score');
 
       if(parentHeader) {
+        parentHeader.SubHeaders.Add(scoreResponses);
         parentHeader.SubHeaders.Add(avg);
         parentHeader.SubHeaders.Add(score);
       } else {
+        table.ColumnHeaders.Add(scoreResponses);
         table.ColumnHeaders.Add(avg);
         table.ColumnHeaders.Add(score);
       }
@@ -208,7 +217,7 @@ class PageResults {
       var posScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_PositiveCols');
       var fav: HeaderFormula = new HeaderFormula();
       fav.Type = FormulaType.Expression;
-      fav.Expression = 'cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row)';
+      fav.Expression = 'if(cellv(col-1,row) = emptyv() OR cellv(col-1,row) < ' + suppressValue + ', emptyv(), cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row))';
       fav.Decimals = 0;
       fav.Title = TextAndParameterUtil.getLabelByKey(context, 'Fav');
 
@@ -221,9 +230,11 @@ class PageResults {
       bcCategories.HideData = true;
 
       if(parentHeader) {
+        parentHeader.SubHeaders.Add(scoreResponses);
         parentHeader.SubHeaders.Add(fav);
         parentHeader.SubHeaders.Add(bcCategories);
       } else {
+        table.ColumnHeaders.Add(scoreResponses);
         table.ColumnHeaders.Add(fav);
         table.ColumnHeaders.Add(bcCategories);
       }
@@ -237,7 +248,7 @@ class PageResults {
       var negScoreRecodingCols = DataSourceUtil.getSurveyPropertyValueFromConfig(context, 'ReusableRecoding_NegativeCols');
       var diff: HeaderFormula = new HeaderFormula();
       diff.Type = FormulaType.Expression;
-      diff.Expression = 'cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row) - cellv(col+'+negScoreRecodingCols.join(', row)-cellv(col+')+',row)';
+      diff.Expression = 'if(cellv(col-1,row) = emptyv() OR cellv(col-1,row) < ' + suppressValue + ', emptyv(), cellv(col+'+posScoreRecodingCols.join(', row)+cellv(col+')+',row) - cellv(col+'+negScoreRecodingCols.join(', row)-cellv(col+')+',row))';
       diff.Decimals = 0;
       diff.Title = TextAndParameterUtil.getLabelByKey(context, 'FavMinUnfav');
 
@@ -250,9 +261,11 @@ class PageResults {
       bcCategories.HideData = true;
 
       if(parentHeader) {
+        parentHeader.SubHeaders.Add(scoreResponses);
         parentHeader.SubHeaders.Add(diff);
         parentHeader.SubHeaders.Add(bcCategories);
       } else {
+        table.ColumnHeaders.Add(scoreResponses);
         table.ColumnHeaders.Add(diff);
         table.ColumnHeaders.Add(bcCategories);
       }
@@ -271,18 +284,33 @@ class PageResults {
     var table = context.table;
 
     // add Responses Column
+    var responses = getResponsesColumn(context);
+
+    table.ColumnHeaders.Add(responses);
+  }
+
+  /*
+*  create base column
+*  @param {object} context: {state: state, report: report, log: log, table: table}
+*/
+  static function getResponsesColumn(context, isHidden) {
+
     var responses: HeaderSegment = new HeaderSegment();
     var catForNAMask: HeaderCategories = new HeaderCategories(); // a way to exclude NA from base calculation
 
     TableUtil.maskOutNA(context, catForNAMask); // exclude NA code
     catForNAMask.HideHeader = true;
+    catForNAMask.HideData = isHidden;
     catForNAMask.Mask.Type = MaskType.ShowCodes;
     catForNAMask.Mask.Codes = ''; // do not show any codes but Total
     responses.SubHeaders.Add(catForNAMask);
     responses.Label = TextAndParameterUtil.getLabelByKey(context, 'Base');
     responses.DataSourceNodeId = DataSourceUtil.getDsId(context);
 
-    table.ColumnHeaders.Add(responses);
+    responses.HideHeader = isHidden;
+    responses.HideData = isHidden;
+
+    return responses;
   }
 
 
