@@ -1,6 +1,6 @@
 class CompareUtil {
 
-    static var numberOfQuestionParameters = 5;
+    static var numberOfQuestionParameters = 10;
 
     static var questionsParameterNamePrefix = 'p_ScriptedCompareQParameter';
     static var scoreParameterName = 'p_CompareScore';

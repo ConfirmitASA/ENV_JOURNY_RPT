@@ -655,14 +655,8 @@ class ParamUtil {
   static function  MaskParameter (context) {
 
     var parameterId = context.parameterId;
-    var mask = context.mask;
-    var log = context.log;
-    var state = context.state;
-    var report = context.report;
 
-    // change second parameter of slice function if Compare parameters have more than 9 copies
-    var parameterIdWithoutNumber = parameterId.slice(0, -1);
-    if (parameterIdWithoutNumber === CompareUtil.questionsParameterNamePrefix) {
+    if (parameterId.indexOf(CompareUtil.questionsParameterNamePrefix) >= 0) {
       CompareUtil.setMaskForCompareParameter(context);
     }
   }

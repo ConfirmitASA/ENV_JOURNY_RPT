@@ -301,7 +301,7 @@ class TableUtil{
         if(breakByType === 'Answer') { // break by question's answer
 
             var questionId;
-            var parameterIndex = breakByParameter[breakByParameter.length - 1];
+            var parameterIndex = breakByParameter.replace(CompareUtil.questionsParameterNamePrefix, '');
             try {
                 questionId = CompareUtil.getCompareQuestionIdFromConfig(context, parameterIndex);
             } catch(e) {
