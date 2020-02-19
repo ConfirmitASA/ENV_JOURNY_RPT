@@ -85,9 +85,11 @@ class FilterSummary {
       }
 
       //filter panel break by and filter parameters from Compare section
-      var compareOptions = CompareUtil.GetCompareParametersValues(context);
+      var compareQuestionOptions = CompareUtil.isCompareQuestionSectionNeeded(context) ? CompareUtil.GetCompareQuestionParametersValues(context) : [];
+      var compareDistributionOptions = CompareUtil.isCompareDistributionSectionNeeded(context) ? CompareUtil.GetCompareDistributionParametersValues(context) : [];
+      var compareOptions = compareQuestionOptions.concat(compareDistributionOptions);
 
-      if(compareOptions) {
+      if(compareOptions && compareOptions.length > 0) {
         str += TextAndParameterUtil.getTextTranslationByKey(context, 'CompareSummaryTitle');
         str += System.Environment.NewLine;
 

@@ -140,11 +140,6 @@ class ParamUtil {
       return DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', 'BenchmarkSet') ? true : false;
     }
 
-    if(parameterName === CompareUtil.combinedDistributionParameterName) {
-      var enableCompareCombinedDistribution = DataSourceUtil.getPagePropertyValueFromConfig(context, 'Page_Results', CompareUtil.configCombinedDistributionTriggerPropertyName);
-      return enableCompareCombinedDistribution ? true : false;
-    }
-
     return true;
   }
 

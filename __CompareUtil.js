@@ -374,6 +374,15 @@ class CompareUtil {
      * @returns {boolean} isCompareSectionNeeded
      **/
     static function isCompareSectionNeeded(context) {
+        return CompareUtil.isCompareQuestionSectionNeeded(context) || CompareUtil.isCompareDistributionSectionNeeded(context);
+    }
+
+    /**
+     * Returns true if there's EnableCompareQuestionsSection or EnableCompareCombinedDistribution flag for current page in Config
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
+     * @returns {boolean} isCompareSectionNeeded
+     **/
+    static function isCompareQuestionSectionNeeded(context) {
         var pageContext = context.pageContext;
         var pageId = pageContext.Items['CurrentPageId'];
 
@@ -383,13 +392,25 @@ class CompareUtil {
         }
         catch (e) { }
 
+        return isCompareNeeded;
+    }
+
+    /**
+     * Returns true if there's EnableCompareQuestionsSection or EnableCompareCombinedDistribution flag for current page in Config
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext}
+     * @returns {boolean} isCompareSectionNeeded
+     **/
+    static function isCompareDistributionSectionNeeded(context) {
+        var pageContext = context.pageContext;
+        var pageId = pageContext.Items['CurrentPageId'];
+
         var isCombinedDistributionNeeded = false;
         try {
             isCombinedDistributionNeeded = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, CompareUtil.configCombinedDistributionTriggerPropertyName);
         }
         catch (e) { }
 
-        return isCompareNeeded || isCombinedDistributionNeeded;
+        return isCombinedDistributionNeeded;
     }
 
     /**
@@ -398,6 +419,18 @@ class CompareUtil {
      * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
      **/
     static function GetCompareParametersValues (context) {
+
+        var log = context.log;
+
+        return CompareUtil.GetCompareQuestionParametersValues(context).concat(CompareUtil.GetCompareDistributionParametersValues(context));
+    }
+
+    /**
+     * Returns array of selected values (label and selected options) for Compare Question parameters
+     * @param {Object} context
+     * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
+     **/
+    static function GetCompareQuestionParametersValues (context) {
 
         var log = context.log;
 
@@ -414,6 +447,20 @@ class CompareUtil {
                 parameterValues.push({Label: parameterName, selectedOptions: selectedOptions});
             }
         }
+
+        return parameterValues;
+    }
+
+    /**
+     * Returns array of selected values (label and selected options) for Compare Distribution parameters
+     * @param {Object} context
+     * @returns {Array} Array of objects {Label: label, selectedOptions: [{Label: label, Code: code}]}
+     **/
+    static function GetCompareDistributionParametersValues (context) {
+
+        var log = context.log;
+
+        var parameterValues = [];
 
         var selectedCombinedDistributionOptions = ParamUtil.GetSelectedOptions(context, CompareUtil.combinedDistributionParameterName);
         if(selectedCombinedDistributionOptions.length>0) {
