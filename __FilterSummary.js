@@ -90,6 +90,7 @@ class FilterSummary {
       var compareOptions = compareQuestionOptions.concat(compareDistributionOptions);
 
       if(compareOptions && compareOptions.length > 0) {
+        str += "<br>"+System.Environment.NewLine;
         str += TextAndParameterUtil.getTextTranslationByKey(context, 'CompareSummaryTitle');
         str += System.Environment.NewLine;
 
