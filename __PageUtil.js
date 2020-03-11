@@ -20,7 +20,7 @@ class PageUtil {
 
         // if in current DS a page shouldn't be visible, than redirect to default page
         // very actual when 1st report page should not be visible
-        if(!isPageVisible(context)) {
+        if(state.ReportExecutionMode === ReportExecutionMode.Web && !PageUtil.isPageVisible(context)) {
             page.NextPageId = DataSourceUtil.getSurveyPropertyValueFromConfig (context, 'DefaultPage');
             return;
         }
@@ -61,9 +61,7 @@ class PageUtil {
         for(var property in surveyProperties) {
             if(property.indexOf('Page_')===0) { //page config
                 var pageId = property.slice('Page_'.length).toLowerCase();
-                var isHidden = false;
-                isHidden = DataSourceUtil.getPagePropertyValueFromConfig(context, property, 'isHidden');
-                if(!isHidden || state.ReportExecutionMode !== ReportExecutionMode.Web) {
+                if(state.ReportExecutionMode !== ReportExecutionMode.Web || PageUtil.isPageVisible(context, property)) {
                     pagesToShow[pageId] = TextAndParameterUtil.getTextTranslationByKey(context, property);
                 }
             }
@@ -74,25 +72,55 @@ class PageUtil {
 
     /*
      * Indicates if page is visible for the selected DS or not.
-     * @param {object} context object {state: state, report: report, log: log}
+     * @param {object} context object {state: state, report: report, log: log, pageContext: pageContext, user: user}
      * @returns {Boolean}
      */
 
-    static function isPageVisible(context) {
+    static function isPageVisible(context, pageIdParameter) {
         var state = context.state;
         var log = context.log;
 
         var pageContext = context.pageContext;
-        var pageId = pageContext.Items['CurrentPageId'];
+        var pageId = pageIdParameter ? pageIdParameter : pageContext.Items['CurrentPageId'];
 
-        if(state.ReportExecutionMode === ReportExecutionMode.Web && !!pageId) {
-            var isHiddenInWeb = !DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'isHidden');
-            return isHiddenInWeb;
-        } else {
-
-            return true; // return true by default (i.e. show page)
+        if (!pageId) {
+            throw new Error("Page id hasn't been initialized. Please pass the pageIdParameter to the isPageVisible function " +
+                "if you're using the function before initialization of pageContext.Items['CurrentPageId'] (e.g. in hide script of the page).");
         }
 
+        var isHidden = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, 'isHidden');
+        if (!isHidden) {
+            throw new Error("The isHidden property hasn't been set for " + pageId + ". Please change Config file.");
+        }
+
+        if(state.ReportExecutionMode === ReportExecutionMode.Web) {
+            var isHiddenInWeb = isHidden.Web;
+            if (isHiddenInWeb === undefined || isHiddenInWeb.GetType() !== System.Boolean) {
+                log.LogDebug("There's no isHidden parameter for Web on " + pageId + ". Please add it to Config");
+                return true;
+            }
+            return !isHiddenInWeb;
+        }
+
+        if(Export.isExcelExportMode(context)) {
+            var isHiddenExcel = isHidden.Excel;
+            if (isHiddenExcel === undefined || isHiddenExcel.GetType() !== System.Boolean) {
+                log.LogDebug("There's no isHidden parameter for Excel on " + pageId + ". Please add it to Config");
+                return true;
+            }
+            return !isHiddenExcel;
+        }
+
+        if(Export.isPDFExportMode(context) || state.ReportExecutionMode === ReportExecutionMode.Design) {
+            var isHiddenInPDF = isHidden.PDF;
+            if (isHiddenInPDF === undefined || isHiddenInPDF.GetType() !== System.Boolean) {
+                log.LogDebug("There's no isHidden parameter for PDF on " + pageId + ". Please add it to Config");
+                return true;
+            }
+            return !isHiddenInPDF;
+        }
+
+        return true;
     }
 
     //TO DO: temporarily solution. should bó a check for each component, not for a whole page
