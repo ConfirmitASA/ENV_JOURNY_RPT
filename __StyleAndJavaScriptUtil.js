@@ -70,7 +70,6 @@ class StyleAndJavaScriptUtil {
     translations['ScoreVsNormValue'] = TextAndParameterUtil.getTextTranslationByKey(context, 'ScoreVsNormValue');
     translations['About'] = TextAndParameterUtil.getTextTranslationByKey(context, 'About');
     translations['CollapseExpand'] = TextAndParameterUtil.getTextTranslationByKey(context, 'CollapseExpand');
-    translations['ScrollUpToCard'] = TextAndParameterUtil.getTextTranslationByKey(context, 'ScrollUpToCard');
     translations['InQueue'] = TextAndParameterUtil.getTextTranslationByKey(context, 'InQueue');
     translations['Completed'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Completed');
     translations['Error'] = TextAndParameterUtil.getTextTranslationByKey(context, 'Error');
