@@ -244,7 +244,7 @@ class PageKPI {
                         if (!cell.IsEmpty && !cell.Value.Equals(Double.NaN)) {
                             result.multiScore.push({
                                 value: parseFloat(cell.Value.toFixed(Config.Decimal)),
-                                name: selectedCompareOptions[j]
+                                name: selectedCompareOptions[j].Label
                             });
                         }
                     }

@@ -344,16 +344,32 @@ class CompareUtil {
     }
 
     /**
+     * Get selected codes for Compare Question parameters
+     * @param {object} context object {state: state, report: report, log: log}
+     * @returns {Array} codes
+     **/
+    static function getSelectedCompareQuestionsCodes(context) {
+        var codes = [];
+
+        for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
+            var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
+            codes = codes.concat(ParamUtil.GetSelectedCodes(context, tempParameterName));
+        }
+
+        return codes;
+    }
+
+    /**
      * Get selected options for Compare Question parameters
      * @param {object} context object {state: state, report: report, log: log}
-     * @returns {Array} options
+     * @returns {Array} codes
      **/
     static function getSelectedCompareQuestionsOptions(context) {
         var options = [];
 
         for (var i = 1; i <= CompareUtil.numberOfQuestionParameters; i++) {
             var tempParameterName = CompareUtil.questionsParameterNamePrefix + i;
-            options = options.concat(ParamUtil.GetSelectedCodes(context, tempParameterName));
+            options = options.concat(ParamUtil.GetSelectedOptions(context, tempParameterName));
         }
 
         return options;
