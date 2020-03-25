@@ -353,11 +353,12 @@ class StyleAndJavaScriptUtil {
       css_string += '.card__verbatim-container tbody tr:not(:nth-last-child(-n+' + numberOfVerbatimComments + ')) { display: none; }';
     }
 
-    if(CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
+    var isStandardCompareMode = CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName);
+    if(isStandardCompareMode && pageContext.Items['CurrentPageId'] === 'KPI') {
+      css_string += '.card_type_verbatim { display: none; }';
+    }
+    if(isStandardCompareMode || pageContext.Items['CurrentPageId'] === 'Trends' && ParamUtil.GetSelectedCodes (context, 'p_TrendQs').length > 1) {
       css_string += '.highcharts-point { fill: transparent; stroke: transparent; }';
-      if (pageContext.Items['CurrentPageId'] === 'KPI') {
-        css_string += '.card_type_verbatim { display: none; }';
-      }
     } else {
       css_string += '.highcharts-legend { display: none; }';
     }
