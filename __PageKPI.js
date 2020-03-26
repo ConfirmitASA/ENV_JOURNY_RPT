@@ -153,6 +153,8 @@ class PageKPI {
         if (CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
             CondFormatUtil.applyConditionalFormatting(context, 'set1');
         }
+
+        table.RemoveEmptyHeaders.Columns = false;
     }
 
     /**
