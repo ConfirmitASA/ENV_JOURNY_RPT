@@ -159,6 +159,7 @@ class TextAndParameterLibrary {
         SensitiveHierarchy: { 9: 'The results are hidden. Even though there are enough responses for the unit, there are small nearby hierarchy groups that could be identified if results for this unit was displayed.', 20: 'Resultatene er skjult. Selv om det er nok svar på enheten, er det små nærliggende hierarkigrupper som kan identifiseres hvis resultatene for denne enheten ble vist.' },
         N: { 9: 'Number of responses', 20: 'Number of responses'},
         Avg: { 9: 'Average', 20: 'Average'},
+        Percentage: { 9: 'Percentage', 20: 'TBD'},
         ViewMore: { 9: 'Click to view more', 20: 'Klikk for å se mer'},
         ShowMore: { 9: 'Show more', 20: 'TBD'},
         ShowLess: { 9: 'Show less', 20: 'TBD'},
@@ -197,6 +198,9 @@ class TextAndParameterLibrary {
         NoQuestionTitle: { 9: 'No question title/text is specified in survey for question ', 20:'Ingen spørsmålstittel / tekst er angitt i spørreundersøkelsen '},
         ReportBase: { 9: 'Report Base:', 20:'Rapport Base:'},
         PleaseSelectQuestions: { 9: 'Please select questions', 20:'TBD'},
+        LessThan: { 9: 'Less than', 20:'TBD'},
+        MoreThan: { 9: 'More than', 20:'TBD'},
+        And: { 9: 'And', 20:'TBD'},
 
         Favourable: { 9: 'Favourable', 20: 'Gunstig'},
         Neutral: { 9: 'Neutral', 20:'Nøytral'},

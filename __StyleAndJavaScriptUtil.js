@@ -144,10 +144,13 @@ class StyleAndJavaScriptUtil {
       properties.push('gaugeData: '+JSON.stringify(PageKPI.getKPIResult(context)));
       properties.push('gaugeType: '+JSON.stringify(DataSourceUtil.getPagePropertyValueFromConfig(context, "Page_KPI", "KPIType")));
       properties.push('gaugeThreshold: '+JSON.stringify(DataSourceUtil.getPagePropertyValueFromConfig(context, "Page_KPI", "KPIThreshold")));
+
+      properties.push('chartTooltipLabel: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')));
     }
 
     if (pageContext.Items['CurrentPageId'] === 'Trends') {
       properties.push('trendQuestions: ' + JSON.stringify(ParamUtil.GetSelectedOptions(context, 'p_TrendQs')));
+      properties.push('chartTooltipLabel: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Avg')));
     }
 
     if (pageContext.Items['CurrentPageId'] === 'Categorical_') {
@@ -168,6 +171,10 @@ class StyleAndJavaScriptUtil {
 
       properties.push('wordcloudMainColor: ' + JSON.stringify(Config.wordcloudMainColor));
       properties.push('wordcloudSecondaryColor: ' + JSON.stringify(Config.wordcloudSecondaryColor));
+    }
+
+    if (pageContext.Items['CurrentPageId'] === 'Response_Rate') {
+      properties.push('chartTooltipLabel: '+JSON.stringify(TextAndParameterUtil.getTextTranslationByKey(context, 'Percentage')));
     }
 
     properties.push('exportWindowFiles: {CSS_1page: ' + JSON.stringify(Config.exportWindowStylingFiles.page1CSS));
