@@ -77,8 +77,13 @@ class FilterSummary {
           var options = [];
           for(var j=0; j<filterOptions[i].selectedOptions.length; j++) {
             var option = filterOptions[i].selectedOptions[j];
-            options.push(option.Label);
+            if (Export.isExportMode(context)) {
+              options.push(FilterSummary.EscapeEntities(context, option.Label));
+            } else {
+              options.push(option.Label);
+            }
           }
+
           str += '<div>'+filterOptions[i].Label+': '+options.join(', ')+'</div>';
           str += System.Environment.NewLine;
         }
@@ -99,8 +104,13 @@ class FilterSummary {
           var options = [];
           for(var j=0; j<compareOptions[i].selectedOptions.length; j++) {
             var option = compareOptions[i].selectedOptions[j];
-            options.push(option.Label);
+            if (Export.isExcelExportMode(context)) {
+              options.push(FilterSummary.EscapeEntities(context, option.Label));
+            } else {
+              options.push(option.Label);
+            }
           }
+
           str += '<div>'+compareOptions[i].Label+': '+options.join(', ')+'</div>';
           str += System.Environment.NewLine;
         }
@@ -110,6 +120,26 @@ class FilterSummary {
       text.Output.Append(str);
     }
 
+  }
+
+
+
+  /**
+   * @memberof FilterSummary
+   * @function EscapeEntities
+   * @description function to replace some chars
+   * @param {String} str
+   * @returns {String}
+   */
+  static function EscapeEntities(context, str) {
+    var entitiesMap = {
+      '<': TextAndParameterUtil.getTextTranslationByKey(context, 'LessThan') + ' ',
+      '>': TextAndParameterUtil.getTextTranslationByKey(context, 'MoreThan') + ' ',
+      '&': TextAndParameterUtil.getTextTranslationByKey(context, 'And') + ' '
+    };
+    return str.replace(/[&<>]/g, function (key) { // old expre /[&<>\"\']/g, https://jiraosl.firmglobal.com/browse/TQA-4215
+      return entitiesMap[key];
+    });
   }
 
 }

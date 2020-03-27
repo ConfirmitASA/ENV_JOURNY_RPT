@@ -187,7 +187,7 @@ class StyleAndJavaScriptUtil {
     properties.push('excelScopeExt: ' + JSON.stringify(exportWindowOptions.indexes.excelScopeExt));
     properties.push('ppt: ' + JSON.stringify(exportWindowOptions.indexes.ppt)+'}');
 
-    properties.push('executionMode: ' + JSON.stringify(state.ReportExecutionMode));
+    properties.push('executionMode: "' + JSON.stringify(state.ReportExecutionMode) + '"');
 
     globalVarScript.push('<script>');
     globalVarScript.push(';var ReportTemplateConfig = (function(){');

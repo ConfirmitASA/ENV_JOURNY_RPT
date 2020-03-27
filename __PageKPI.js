@@ -308,11 +308,11 @@ class PageKPI {
                 if (CompareUtil.isInCompareModeByType(context, CompareUtil.standardCompareModeTypeName)) {
                     text.Output.Append(kpiResults[i].title + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Avg') + '): ' + System.Environment.NewLine);
                     for (var j = 0; j < kpiResults[i].multiScore.length; j++) {
-                        text.Output.Append('    ' + kpiResults[i].multiScore[j].name + ' - ' + kpiResults[i].multiScore[j].value + System.Environment.NewLine);
+                        text.Output.Append('    ' + FilterSummary.EscapeEntities(context, kpiResults[i].multiScore[j].name) + ' - ' + kpiResults[i].multiScore[j].value + System.Environment.NewLine);
                     }
 
                 } else {
-                    text.Output.Append(kpiResults[i].title + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Avg') + '): ' + kpiResults[i].score + System.Environment.NewLine);
+                    text.Output.Append(FilterSummary.EscapeEntities(context, kpiResults[i].title) + ' (' + TextAndParameterUtil.getTextTranslationByKey(context, 'Avg') + '): ' + kpiResults[i].score + System.Environment.NewLine);
                 }
 
             } else {
