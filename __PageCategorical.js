@@ -74,27 +74,18 @@ class PageCategorical {
         var log = context.log;
         var suppressSettings = context.suppressSettings;
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
-        var questionConfigParamName = tableType == 'multi' ? 'ResultMultiCategoricalQuestions' : 'ResultCategoricalQuestions';
+        var questionConfigParamName = tableType === 'multi' ? 'ResultMultiCategoricalQuestions' : 'ResultCategoricalQuestions';
 
         // add rows (single or multi questions)
         var Qs = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, questionConfigParamName);
         var topN = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, "topN");
-        var naCode = DataSourceUtil.getPropertyValueFromConfig(context, pageId, 'NA_answerCode');
 
         for (var i = 0; i < Qs.length; i++) {
-
-            var newAnswerCount = QuestionUtil.getQuestionAnswers(context, Qs[i]);
-            var answerCount = Int32.Parse(newAnswerCount.length);
-
-            if (QuestionUtil.hasAnswer(context, Qs[i], naCode)) {
-                answerCount--;
-            }
 
             var qe: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, Qs[i]);
             var row: HeaderQuestion = new HeaderQuestion(qe);
 
-            row.IsCollapsed = (tableType == 'multi') ? true : false;
-
+            row.IsCollapsed = tableType === 'multi';
             row.ShowTitle = true;//false; - changed to true for excel export
             row.ShowTotals = false;
             row.HideHeader = true;
@@ -105,19 +96,21 @@ class PageCategorical {
             row.Sorting.Position = 1;
             row.Sorting.TopN = topN;
 
-            TableUtil.maskOutNA(context, row);
+            if(tableType !== 'multi') {
+                TableUtil.maskOutNA(context, row);
+            }
             table.RowHeaders.Add(row);
         }
 
-        if (table.ColumnHeaders.Count == 0) { // temporary solution to avoid multiple addition of columns for Excel Categorical table
+        if (table.ColumnHeaders.Count === 0) { // temporary solution to avoid multiple addition of columns for Excel Categorical table
 
             // add 2 Base columns and 2 Segments to change the standard Base titles for Excel Export
-
             var baseVP: HeaderBase = new HeaderBase();
             baseVP.Distributions.Enabled = true;
             baseVP.Distributions.VerticalPercents = true;
             baseVP.Distributions.UseInnermostTotals = true;
             baseVP.HideHeader = true;
+
             var hsVP: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'Frequence'), '');
             hsVP.DataSourceNodeId = DataSourceUtil.getDsId (context);
             hsVP.SubHeaders.Add(baseVP);
@@ -127,6 +120,7 @@ class PageCategorical {
             baseC.Distributions.Enabled = true;
             baseC.Distributions.Count = true;
             baseC.HideHeader = true;
+
             var hsC: HeaderSegment = new HeaderSegment(TextAndParameterUtil.getLabelByKey(context, 'Number'), '');
             hsC.DataSourceNodeId = DataSourceUtil.getDsId (context);
             hsC.SubHeaders.Add(baseC);
@@ -182,7 +176,6 @@ class PageCategorical {
     static function getCategoricalResult(context, tableType) {
 
         var report = context.report;
-        var state = context.state;
         var log = context.log;
         var pageId = PageUtil.getCurrentPageIdInConfig(context);
 
@@ -194,6 +187,7 @@ class PageCategorical {
         var Qs = DataSourceUtil.getPagePropertyValueFromConfig(context, pageId, questionConfigParamName);
         var row_index = 0;  // iterator through table rows
         var categoricals = [];
+
         for (var i = 0; i < Qs.length; i++) {
 
             var newAnswerCount = QuestionUtil.getQuestionAnswers(context, Qs[i]);
@@ -407,7 +401,10 @@ class PageCategorical {
         var qe : QuestionnaireElement =  QuestionUtil.getQuestionnaireElement(context, drillDownQId);
         var questionInfo = QuestionUtil.getQuestionInfo(context, drillDownQId);
         var row : HeaderQuestion = new HeaderQuestion(qe);
-        TableUtil.maskOutNA(context, row);
+
+        if(questionInfo.standardType !== 'multi') {
+            TableUtil.maskOutNA(context, row);
+        }
         row.IsCollapsed = (questionInfo.standardType === ((String)(QuestionType.Single)).toLowerCase()) ? false : true;
         row.ShowTitle = false;
         row.ShowTotals = false;
