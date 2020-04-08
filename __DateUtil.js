@@ -6,9 +6,10 @@ class DateUtil {
    * @return {object} {startDate: start, endDate: end, startDateString: startString, endDateString: endString} - date period selected with filters
    */
 
-  static function defineDateRangeBasedOnFilters(context) {
+  static function defineDateRangeBasedOnFilters(context, isDateFilter) {
 
     var state = context.state;
+    var report = context.report;
     var log = context.log;
 
     if(Filters.isTimePeriodFilterHidden(context)) {
@@ -66,7 +67,16 @@ class DateUtil {
           end = state.Parameters.GetDate('p_DateTo');
         }
 
-      } else if(selectedTimePeriod.Code !== 'ALL') {
+      } else if(selectedTimePeriod.Code === 'ALL') {
+        if (!isDateFilter) {
+          var collectionPeriodDates = report.TableUtils.GetColumnHeaderCategoryTitles("Response_Rate:CollectionPeriod");
+          if (collectionPeriodDates.length > 0) {
+            var startDateString: String = collectionPeriodDates[0];
+            var startDate: Date = new Date(startDateString);
+            start = new DateTime(startDate.getFullYear(), (startDate.getMonth() + 1), startDate.getDate());
+          }
+        }
+      } else {
         throw new Error('DateUtil.defineDateRangeBasedOnFilters: Time period is selected, but there\'s not enough data to build interval.');
       }
 

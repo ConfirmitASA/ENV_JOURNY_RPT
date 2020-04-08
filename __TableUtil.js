@@ -129,9 +129,10 @@ class TableUtil{
             timeQuestionHeader.HideData = false;
             timeQuestionHeader.HideHeader = false;
 
+            TableUtil.applyDateRangeFilterToHeader(context, timeQuestionHeader);
+
             table.RemoveEmptyHeaders.Columns = true;  //https://jiraosl.firmglobal.com/browse/TQA-4243
             table.ColumnHeaders.Add(timeQuestionHeader);
-
         }
     }
     /*

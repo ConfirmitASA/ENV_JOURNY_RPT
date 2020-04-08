@@ -320,7 +320,7 @@ class Filters {
       return '';
     }
 
-    var timePeriod = DateUtil.defineDateRangeBasedOnFilters(context);
+    var timePeriod = DateUtil.defineDateRangeBasedOnFilters(context, true);
     var expression = [];
 
     // example: interview_start >= TODATE("2019-03-31")
