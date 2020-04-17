@@ -86,7 +86,7 @@ class PageWordclouds {
     var pageId = PageUtil.getCurrentPageIdInConfig(context);
     var qId = ParamUtil.GetSelectedCodes(context, "p_WordcloudQs");
 
-    table.Caching.Enabled = true;
+    table.Caching.Enabled = false;
 
     var question_word: QuestionnaireElement = QuestionUtil.getQuestionnaireElement(context, 'word.' + qId);
     var questionHeader_word : HeaderQuestion = new HeaderQuestion(question_word);
