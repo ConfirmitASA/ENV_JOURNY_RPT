@@ -288,8 +288,8 @@ class StyleAndJavaScriptUtil {
         +'border-bottom-color:'+kpiColor+'!important;}'
 
         //header background
-        +'.global-header {'
-        +'background-color: '+headerBackground+';'
+        +'.global-header, .page-header__row_type_info {'
+        +'background-color: ' + (headerBackground ? headerBackground : '#292D31') + '!important;'
         +'}'
 
         // calendar
