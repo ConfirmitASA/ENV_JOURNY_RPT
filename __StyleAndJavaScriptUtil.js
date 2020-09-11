@@ -265,6 +265,7 @@ class StyleAndJavaScriptUtil {
     var kpiColor_dark = Config.kpiColor_dark;
     var logo = Config.logo;
     var headerBackground = Config.headerBackground;
+    var statisticsFontColor = Config.statisticsFontColor;
     var primaryGreyColor = Config.primaryGreyColor;
     var pieColors = Config.pieColors;
     var barChartColors = Config.barChartColors_Distribution;
@@ -290,6 +291,11 @@ class StyleAndJavaScriptUtil {
         //header background
         +'.global-header, .page-header__row_type_info {'
         +'background-color: ' + (headerBackground ? headerBackground : '#292D31') + '!important;'
+        +'}'
+
+        //statistics
+        +'.statistics__value {'
+        +'color: ' + (statisticsFontColor ? statisticsFontColor : '#93C5B9') + '!important;'
         +'}'
 
         // calendar
